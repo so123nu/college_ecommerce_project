@@ -79,11 +79,29 @@ class Database{
      }
   }
 
+  public function validateSellerEmail($email){
+  //sql query to select user using email
+  $sql = 'SELECT * FROM sellers WHERE email=:email';
+  //prepare query
+  $this->prepare($sql);
+  //bind email value to :email
+  $this->bind(':email',$email);
+  //execute query
+  $this->execute();
+  //fetch rowCount
+  $rowCount = $this->rowCount();
+  //if rowCount > 0 i.e., user exists then return true else return false
+  if($rowCount > 0){
+      return true;
+  }else{
+      return false;
+    }
+  }
+
   //register user
   public function registerUser($name,$aadhaar,$email,$password){
     $is_active = 1;
     $password = password_hash($password,PASSWORD_BCRYPT);
-    $sql = 'Insert into users (name,aadhaar,email,password,is_active) values (:name,:username,:email,:password,:is_active)';
      $sql = 'INSERT INTO `users`(`name`, `email`, `aadhaar`, `password`, `is_active`) VALUES (:name,:email,:aadhaar,:password,:is_active)';
     $this->prepare($sql);
      // bind values to prepared variables
@@ -92,6 +110,27 @@ class Database{
     $this->bind(':email',$email);
     $this->bind(':password',$password);
     $this->bind(':is_active',$is_active);
+
+   //execute query
+    if($this->execute()){
+        return true;
+    }else{
+        return false;
+    }
+ }
+
+
+  //register Seller
+  public function registerSeller($name,$email,$password,$gst,$pan){
+    $password = password_hash($password,PASSWORD_BCRYPT);
+    $sql = 'Insert into sellers (name,email,password,gst,pan) values (:name,:email,:password,:gst,:pan)';
+    $this->prepare($sql);
+     // bind values to prepared variables
+    $this->bind(':name',$name);
+    $this->bind(':gst',$gst);
+    $this->bind(':email',$email);
+    $this->bind(':password',$password);
+    $this->bind(':pan',$pan);
 
    //execute query
     if($this->execute()){
@@ -116,6 +155,23 @@ class Database{
     //return user details
     return $result;
 }
+
+//Get Seller Details
+public function sellerDetails($email){
+  //sql query to select user using email
+  $sql = 'SELECT * FROM  sellers WHERE email=:email';
+  //prepare query
+  $this->prepare($sql);
+    //bind email value to :email
+  $this->bind(':email',$email);
+  //execute query
+  $this->execute();
+  //fetch single user record
+  $result = $this->fetchSingle();
+  //return user details
+  return $result;
+}
+
 
    
 
