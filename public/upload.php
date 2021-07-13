@@ -1,40 +1,56 @@
-<?php 
+<?php
 session_start();
+
 require_once('../private/Database.php');
-require_once('./response.php');
-$db = new Database;
-$response = new Response;
+$db=new Database();
 
-
-
-//allow cart page access to only logged in user
-if(empty($_SESSION['email'])){ 
-  header('location:http://localhost/college_ecom/public/account.php');
+if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+    if(isset($_POST['upload']))
+    {
+    $fieldErr='';
+    $typeErr='';
+    $sellerID=$_SESSION['id'];
+    $productName=filter_var($_POST['name'],FILTER_SANITIZE_STRING);
+    $productcategory=filter_var($_POST['category'],FILTER_SANITIZE_STRING);
+    $productCompany=filter_var($_POST['company'],FILTER_SANITIZE_STRING);
+    $productStock=filter_var($_POST['product_stock'],FILTER_SANITIZE_STRING);
+    $productDetail=filter_var($_POST['detail'],FILTER_SANITIZE_STRING);
+    $price=filter_var($_POST['price'],FILTER_SANITIZE_STRING);
+    $productImage=$_FILES['image']['name'][0];
+    $temp=$_FILES['image']['tmp_name'][0];
+    $lengthOfArray=sizeof($_FILES['image']);
+    if(empty($productName) || empty($productcategory) ||empty($productImage))
+    {
+        $fieldErr="Enter required field";
+    }
+    else
+    {
+        $category=findcategory($productcategory);
+        move_uploaded_file($temp,"upload/".$productImage);
+        if($db->uploadProductTable($sellerID,$productName,$productCompany,$category,$productDetail,$price,$productStock,$productImage))
+        {
+            //find last insertion id
+            $productID=$db->findProductID();
+            //insert catagry in corresponding category table
+            $db->uploadcategoryTable($productID,$productcategory);
+            //upload corresponding images
+            for($index=0;$index<$lengthOfArray;$index++)
+            {
+                @$productImage=$_FILES['image']['name'][$index];
+                @$temp=$_FILES['image']['tmp_name'][$index];
+                move_uploaded_file($temp,"upload/".$productImage);
+                $db->uploadImageTable($productID,$productImage);
+            }
+        }
+    }
+   }
 }
 
-// store item into cart
-   if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])){
-      $productId = $_GET['id'];
-      //get product details
-       $productDetails = $db->getProductDetails($productId); 
-      //get user id
-      $userId = $_SESSION['id'];
-      //add product to cart
-      $db->addProductToCart($productDetails,$userId);
-   }
+$category = $db->fetchCategory();
 
-  //Get Cart Products for logged In User
-   $carts = $db->getCartByUser($_SESSION['id']);
 
-   //cart total price
-   $cartTotal = 0;
-   foreach($carts as $cart){
-     $cartTotal +=  $cart->price;
-   }
-  
-
- ?>
-
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -42,7 +58,7 @@ if(empty($_SESSION['email'])){
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Daily Shop | Cart Page</title>
+    <title>Daily Shop | Account Page</title>
 
     <!-- Font awesome -->
     <link href="css/font-awesome.css" rel="stylesheet">
@@ -80,6 +96,10 @@ if(empty($_SESSION['email'])){
 
 <body>
 
+    <?php if(isset($message)) : ?>
+    <div class="alert alert-success text-center"><?php echo $message; ?></div>
+    <?php endif; ?>
+
     <!-- wpf loader Two -->
     <div id="wpf-loader-two">
         <div class="wpf-loader-two-inner">
@@ -107,7 +127,7 @@ if(empty($_SESSION['email'])){
                                     <div class="dropdown">
                                         <a class="btn dropdown-toggle" href="#" type="button" id="dropdownMenu1"
                                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <img src="img/flag/ind.jpg" alt="India flag">INDIA
+                                            <img src="img/flag/ind.jpg" alt="india flag">INDIA
                                             <span class="caret"></span>
                                         </a>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
@@ -141,7 +161,10 @@ if(empty($_SESSION['email'])){
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
-                                    <li><a href="" data-toggle="modal" data-target="#login-modal">Login</a></li>
+                                    <?php if(isset($_SESSION['name'])): ?>
+                                    <li><a href="" data-toggle="modal" data-target="#login-modal">Logout</a></li>
+                                    <?php endif; ?>
+
                                 </ul>
                             </div>
                         </div>
@@ -165,7 +188,7 @@ if(empty($_SESSION['email'])){
                                     <p>daily<strong>Shop</strong> <span>Your Shopping Partner</span></p>
                                 </a>
                                 <!-- img based logo -->
-                                <!-- <a href="index.html"><img src="img/logo.jpg" alt="logo img"></a> -->
+                                <!-- <a href="index.php"><img src="img/logo.jpg" alt="logo img"></a> -->
                             </div>
                             <!-- / logo  -->
                             <!-- cart box -->
@@ -242,7 +265,7 @@ if(empty($_SESSION['email'])){
                     <div class="navbar-collapse collapse">
                         <!-- Left nav -->
                         <ul class="nav navbar-nav">
-                            <li><a href="index.html">Home</a></li>
+                            <li><a href="index.php">Home</a></li>
                             <li><a href="#">Men <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="#">Casual</a></li>
@@ -282,8 +305,8 @@ if(empty($_SESSION['email'])){
                                                     <li><a href="#">Earrings</a></li>
                                                     <li><a href="#">Jewellery Sets</a></li>
                                                     <li><a href="#">Lockets</a></li>
-                                                    <li class="disabled"><a class="disabled" href="#">Disabled item</a>
-                                                    </li>
+                                                    <li class="disabled"><a class="disabled" href="#">Disabled
+                                                            item</a></li>
                                                     <li><a href="#">Jeans</a></li>
                                                     <li><a href="#">Polo T-Shirts</a></li>
                                                     <li><a href="#">SKirts</a></li>
@@ -356,14 +379,14 @@ if(empty($_SESSION['email'])){
 
     <!-- catg header banner section -->
     <section id="aa-catg-head-banner">
-        <img src="img/fashion/fashion-header-bg-8.jpg" alt="fashion img">
+        <img src="img/create_account.png" alt="fashion img" class="create_account_banner">
         <div class="aa-catg-head-banner-area">
             <div class="container">
                 <div class="aa-catg-head-banner-content">
-                    <h2>Cart Page</h2>
+                    <h2>Upload Page</h2>
                     <ol class="breadcrumb">
-                        <li><a href="index.html">Home</a></li>
-                        <li class="active">Cart</li>
+                        <li><a href="index.php">Home</a></li>
+                        <li class="active">Upload</li>
                     </ol>
                 </div>
             </div>
@@ -372,65 +395,56 @@ if(empty($_SESSION['email'])){
     <!-- / catg header banner section -->
 
     <!-- Cart view section -->
-    <section id="cart-view">
+    <section id="aa-myaccount">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="cart-view-area">
-                        <div class="cart-view-table">
-                            <form action="">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th>Product</th>
-                                                <th>Price</th>
-                                                <th>Quantity</th>
-                                                <th>Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if(!empty($carts)): ?>
-                                            <?php foreach($carts as $cart): ?>
-                                            <tr>
-                                                <td><a class="remove" href="#">
-                                                        <fa class="fa fa-close"></fa>
-                                                    </a></td>
-                                                <td><a href="#"><img src="./photos/<?php echo $cart->product_image; ?>"
-                                                            alt="img"></a></td>
-                                                <td><a class="aa-cart-title"
-                                                        href="#"><?php echo $cart->product_name;?></a></td>
-                                                <td><?php echo $cart->price;?></td>
-                                                <td><input class="aa-cart-quantity" type="number"
-                                                        value="<?php echo $cart->quantity; ?>"></td>
-                                                <td><?php echo $cart->price; ?></td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                            <?php endif; ?>
-
-                                        </tbody>
-                                    </table>
+                    <div class="aa-myaccount-area">
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="aa-myaccount-register">
+                                    <h4>Upload Product</h4>
+                                    <form action="upload.php" method="POST" class="aa-login-form"
+                                        enctype="multipart/form-data">
+                                        <div class="form-group">
+                                            <label for="">Product Name<span>*</span></label>
+                                            <input type="text" required name="name"
+                                                class="<?php if(!empty($fieldErr)) { echo "<span>*".$fieldErr."</span>";} ?>">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>product category<span>*</span></label>
+                                            <select name="category">
+                                                <option value="">--select--</option>
+                                                <?php echo $category_array['category'];?>
+                                                <?php foreach($category as $category_array):?>
+                                                <option value="<?php echo $category_array->id;?>">
+                                                    <?php echo $category_array->category;?></option>
+                                                <?php endforeach;?>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="">Product Company Name</label>
+                                            <input type="text" required name="company" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>enter stock</label>
+                                            <input type="number" name="product_stock" autocomplete="off" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>choose your file<span>*</span></label>
+                                            <input type="file" name="image[]" value="" required multiple="multiple">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>enter details</label>
+                                            <input type="text" name="detail" autocomplete="off" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>enter price<span>*</span></label>
+                                            <input type="number" name="price" autocomplete="off" required><br>
+                                        </div>
+                                        <input type="submit" name="upload" value="UPLOAD">
+                                    </form>
                                 </div>
-                            </form>
-                            <!-- Cart Total view -->
-                            <div class="cart-view-total">
-                                <h4>Cart Totals</h4>
-                                <table class="aa-totals-table">
-                                    <tbody>
-                                        <tr>
-                                            <th>Subtotal</th>
-                                            <td><?php echo $cartTotal; ?></td>
-
-                                        </tr>
-                                        <tr>
-                                            <th>Total</th>
-                                            <td><?php echo $cartTotal; ?></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <a href="#" class="aa-cart-view-btn">Proced to Checkout</a>
                             </div>
                         </div>
                     </div>
@@ -439,26 +453,6 @@ if(empty($_SESSION['email'])){
         </div>
     </section>
     <!-- / Cart view section -->
-
-
-    <!-- Subscribe section -->
-    <section id="aa-subscribe">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="aa-subscribe-area">
-                        <h3>Subscribe our newsletter </h3>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ex, velit!</p>
-                        <form action="" class="aa-subscribe-form">
-                            <input type="email" name="" id="" placeholder="Enter your Email">
-                            <input type="submit" value="Subscribe">
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- / Subscribe section -->
 
     <!-- footer -->
     <footer id="aa-footer">
@@ -514,7 +508,7 @@ if(empty($_SESSION['email'])){
                                         <div class="aa-footer-widget">
                                             <h3>Contact Us</h3>
                                             <address>
-                                                <p>Kolkata</p>
+                                                <p> kolkata</p>
                                                 <p><span class="fa fa-phone"></span>+91 7484858555</p>
                                                 <p><span class="fa fa-envelope"></span>dailyshop@gmail.com</p>
                                             </address>
@@ -567,11 +561,11 @@ if(empty($_SESSION['email'])){
                         <label for="">Password<span>*</span></label>
                         <input type="password" placeholder="Password">
                         <button class="aa-browse-btn" type="submit">Login</button>
-                        <label for="rememberme" class="rememberme"><input type="checkbox" id="rememberme"> Remember me
-                        </label>
+                        <label for="rememberme" class="rememberme"><input type="checkbox" id="rememberme"> Remember
+                            me </label>
                         <p class="aa-lost-password"><a href="#">Lost your password?</a></p>
                         <div class="aa-register-now">
-                            Don't have an account?<a href="account.php">Register now!</a>
+                            Don't have an account?<a href="account.php">Register Now!</a>
                         </div>
                     </form>
                 </div>
@@ -601,6 +595,7 @@ if(empty($_SESSION['email'])){
     <script type="text/javascript" src="js/nouislider.js"></script>
     <!-- Custom js -->
     <script src="js/custom.js"></script>
+
 
 </body>
 

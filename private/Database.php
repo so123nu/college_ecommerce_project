@@ -173,10 +173,101 @@ public function sellerDetails($email){
 }
 
 
-   
+public function fetchCategory(){
+    //sql query to select user using email
+    $sql = 'SELECT * FROM  category_table';
+    //prepare query
+    $this->prepare($sql);
+    //execute query
+    $this->execute();
+    //fetch single user record
+    $result = $this->fetchMultiple();
+    //return user details
+    return $result;
+
+}
 
 
+public function getSportsProduct(){
 
+  //sql query to select user sports products
+  $sql = 'SELECT * FROM `product` join category_table on product.category_ID = category_table.category_ID
+  Where category = "Sports"';
+  //prepare query
+  $this->prepare($sql);
+  //execute query
+  $this->execute();
+  //fetch multiple sports products record
+  $result = $this->fetchMultiple();
+  //return sports products
+  return $result;
+
+}
+
+public function getElectronicsProduct(){
+
+  //sql query to select user sports products
+  $sql = 'SELECT * FROM `product` join category_table on product.category_ID = category_table.category_ID
+  Where category = "Electronics"';
+  //prepare query
+  $this->prepare($sql);
+  //execute query
+  $this->execute();
+  //fetch multiple sports products record
+  $result = $this->fetchMultiple();
+  //return sports products
+  return $result;
+
+}
+
+public function getProductDetails($productId){
+   //sql query to select user sports products
+   $sql = 'SELECT * FROM `product` Where productID = :productID';
+   //prepare query
+   $this->prepare($sql);
+   //bind product id 
+   $this->bind(':productID',$productId);
+    //execute query
+   $this->execute();
+   //fetch multiple sports products record
+   $result = $this->fetchSingle();
+   //return sports products
+   return $result;
+}
+
+public function addProductToCart($productDetails,$userId){
+  $sql = 'Insert into cart (product_id,price,product_name,product_image,quantity,user_id) values (:product_id,:price,:product_name,:product_image,:quantity,:user_id)';
+  $this->prepare($sql);
+   // bind values to prepared variables
+  $this->bind(':product_id',$productDetails->productID);
+  $this->bind(':price',$productDetails->price);
+  $this->bind(':product_name',$productDetails->Pname);
+  $this->bind(':product_image',$productDetails->image);
+  $this->bind(':quantity',1);
+  $this->bind(':user_id',$userId);
+
+ //execute query
+  if($this->execute()){
+      return true;
+  }else{
+      return false;
+  }
+}
+
+public function getCartByUser($userId){
+  //sql query to select user sports products
+  $sql = 'SELECT * FROM `cart` Where user_id = :userID';
+  //prepare query
+  $this->prepare($sql);
+  //bind product id 
+  $this->bind(':userID',$userId);
+   //execute query
+  $this->execute();
+  //fetch multiple sports products record
+  $result = $this->fetchMultiple();
+  //return sports products
+  return $result;
+}
    
 
 }
