@@ -270,6 +270,24 @@ public function getCartByUser($userId){
 }
    
 
+public function getCartCount($userId){
+  //sql query to select user sports products
+  $sql = 'SELECT * FROM `cart` Where user_id = :userID';
+  //prepare query
+  $this->prepare($sql);
+  //bind product id 
+  $this->bind(':userID',$userId);
+   //execute query
+  $this->execute();
+  //fetch multiple sports products record
+  $result = $this->fetchMultiple();
+  //return sports products
+  $rowCount = $this->rowCount();
+
+  return $rowCount;
+}
+   
+
 }
 
 ?>

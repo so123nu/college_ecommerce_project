@@ -23,16 +23,18 @@ if(empty($_SESSION['email'])){
       $db->addProductToCart($productDetails,$userId);
    }
 
-  //Get Cart Products for logged In User
-   $carts = $db->getCartByUser($_SESSION['id']);
 
-   //cart total price
-   $cartTotal = 0;
-   foreach($carts as $cart){
-     $cartTotal +=  $cart->price;
-   }
-  
-
+ //cart items
+ if(!empty($_SESSION['id'])){
+  $carts = $db->getCartByUser($_SESSION['id']);
+ }
+  //cart total price
+  $cartTotal = 0;
+  if(!empty($carts)){
+  foreach($carts as $cart){
+      $cartTotal +=  $cart->price;
+    }
+}
  ?>
 
 <!DOCTYPE html>
@@ -137,11 +139,26 @@ if(empty($_SESSION['email'])){
                             <!-- / header top left -->
                             <div class="aa-header-top-right">
                                 <ul class="aa-head-top-nav-right">
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                                    <li><a href="account.php"><?php echo $_SESSION['name']; ?></a></li>
+                                    <?php endif; ?>
+                                    <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
+                                    <?php endif; ?>
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <li>
+                                        <form action="index.php" method="POST">
+                                            <input type="submit" value="Logout" class="logout">
+                                            <input type="hidden" name="logout" value="logout_user">
+                                        </form>
+                                    </li>
+                                    <?php else: ?>
                                     <li><a href="" data-toggle="modal" data-target="#login-modal">Login</a></li>
+                                    <?php endif; ?>
                                 </ul>
                             </div>
                         </div>
@@ -173,38 +190,36 @@ if(empty($_SESSION['email'])){
                                 <a class="aa-cart-link" href="cart.php">
                                     <span class="fa fa-shopping-basket"></span>
                                     <span class="aa-cart-title">SHOPPING CART</span>
-                                    <span class="aa-cart-notify">2</span>
+                                    <?php if(!empty($_SESSION['id'])): ?><span
+                                        class="aa-cart-notify"><?php  echo $db->getCartCount($_SESSION['id']);  ?></span><?php endif; ?>
                                 </a>
                                 <div class="aa-cartbox-summary">
                                     <ul>
+                                        <?php if(!empty($carts)): ?>
+                                        <?php foreach($carts as $cart): ?>
                                         <li>
-                                            <a class="aa-cartbox-img" href="#"><img src="img/woman-small-2.jpg"
-                                                    alt="img"></a>
+                                            <a class="aa-cartbox-img" href="#"><img
+                                                    src="photos/<?php echo $cart->product_image; ?>" alt="img"></a>
                                             <div class="aa-cartbox-info">
-                                                <h4><a href="#">Product Name</a></h4>
-                                                <p>1 x $250</p>
+                                                <h4><a href="#"><?php echo $cart->product_name; ?></a></h4>
+                                                <p><?php echo $cart->quantity; ?> x <?php echo $cart->price; ?></p>
                                             </div>
                                             <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
                                         </li>
-                                        <li>
-                                            <a class="aa-cartbox-img" href="#"><img src="img/woman-small-1.jpg"
-                                                    alt="img"></a>
-                                            <div class="aa-cartbox-info">
-                                                <h4><a href="#">Product Name</a></h4>
-                                                <p>1 x $250</p>
-                                            </div>
-                                            <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
-                                        </li>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
+
                                         <li>
                                             <span class="aa-cartbox-total-title">
                                                 Total
                                             </span>
                                             <span class="aa-cartbox-total-price">
-                                                $500
+                                                &#8377; <?php echo $cartTotal; ?>
                                             </span>
                                         </li>
                                     </ul>
-                                    <a class="aa-cartbox-checkout aa-primary-btn" href="#">Checkout</a>
+                                    <a class="aa-cartbox-checkout aa-primary-btn"
+                                        href="http://localhost/college_ecom/public/checkout.php">Checkout</a>
                                 </div>
                             </div>
                             <!-- / cart box -->
@@ -243,87 +258,7 @@ if(empty($_SESSION['email'])){
                         <!-- Left nav -->
                         <ul class="nav navbar-nav">
                             <li><a href="index.html">Home</a></li>
-                            <li><a href="#">Men <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Casual</a></li>
-                                    <li><a href="#">Sports</a></li>
-                                    <li><a href="#">Formal</a></li>
-                                    <li><a href="#">Standard</a></li>
-                                    <li><a href="#">T-Shirts</a></li>
-                                    <li><a href="#">Shirts</a></li>
-                                    <li><a href="#">Jeans</a></li>
-                                    <li><a href="#">Trousers</a></li>
-                                    <li><a href="#">And more.. <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">Sleep Wear</a></li>
-                                            <li><a href="#">Sandals</a></li>
-                                            <li><a href="#">Loafers</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Women <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Kurta & Kurti</a></li>
-                                    <li><a href="#">Trousers</a></li>
-                                    <li><a href="#">Casual</a></li>
-                                    <li><a href="#">Sports</a></li>
-                                    <li><a href="#">Formal</a></li>
-                                    <li><a href="#">Sarees</a></li>
-                                    <li><a href="#">Shoes</a></li>
-                                    <li><a href="#">And more.. <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">Sleep Wear</a></li>
-                                            <li><a href="#">Sandals</a></li>
-                                            <li><a href="#">Loafers</a></li>
-                                            <li><a href="#">And more.. <span class="caret"></span></a>
-                                                <ul class="dropdown-menu">
-                                                    <li><a href="#">Rings</a></li>
-                                                    <li><a href="#">Earrings</a></li>
-                                                    <li><a href="#">Jewellery Sets</a></li>
-                                                    <li><a href="#">Lockets</a></li>
-                                                    <li class="disabled"><a class="disabled" href="#">Disabled item</a>
-                                                    </li>
-                                                    <li><a href="#">Jeans</a></li>
-                                                    <li><a href="#">Polo T-Shirts</a></li>
-                                                    <li><a href="#">SKirts</a></li>
-                                                    <li><a href="#">Jackets</a></li>
-                                                    <li><a href="#">Tops</a></li>
-                                                    <li><a href="#">Make Up</a></li>
-                                                    <li><a href="#">Hair Care</a></li>
-                                                    <li><a href="#">Perfumes</a></li>
-                                                    <li><a href="#">Skin Care</a></li>
-                                                    <li><a href="#">Hand Bags</a></li>
-                                                    <li><a href="#">Single Bags</a></li>
-                                                    <li><a href="#">Travel Bags</a></li>
-                                                    <li><a href="#">Wallets & Belts</a></li>
-                                                    <li><a href="#">Sunglases</a></li>
-                                                    <li><a href="#">Nail</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Kids <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Casual</a></li>
-                                    <li><a href="#">Sports</a></li>
-                                    <li><a href="#">Formal</a></li>
-                                    <li><a href="#">Standard</a></li>
-                                    <li><a href="#">T-Shirts</a></li>
-                                    <li><a href="#">Shirts</a></li>
-                                    <li><a href="#">Jeans</a></li>
-                                    <li><a href="#">Trousers</a></li>
-                                    <li><a href="#">And more.. <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">Sleep Wear</a></li>
-                                            <li><a href="#">Sandals</a></li>
-                                            <li><a href="#">Loafers</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
+
                             <li><a href="#">Sports</a></li>
                             <li><a href="#">Digital <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -334,16 +269,9 @@ if(empty($_SESSION['email'])){
                                     <li><a href="#">Accesories</a></li>
                                 </ul>
                             </li>
-                            <li><a href="#">Furniture</a></li>
 
                             <li><a href="contact.php">Contact</a></li>
-                            <li><a href="#">Pages <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="product.php">Shop Page</a></li>
-                                    <li><a href="product-detail.php">Shop Single</a></li>
-                                    <li><a href="404.php">404 Page</a></li>
-                                </ul>
-                            </li>
+
                         </ul>
                     </div>
                     <!--/.nav-collapse -->
@@ -356,7 +284,7 @@ if(empty($_SESSION['email'])){
 
     <!-- catg header banner section -->
     <section id="aa-catg-head-banner">
-        <img src="img/fashion/fashion-header-bg-8.jpg" alt="fashion img">
+        <img src="img/cart.png" alt="fashion img" class="create_account_banner">
         <div class="aa-catg-head-banner-area">
             <div class="container">
                 <div class="aa-catg-head-banner-content">
@@ -403,7 +331,7 @@ if(empty($_SESSION['email'])){
                                                 <td><a class="aa-cart-title"
                                                         href="#"><?php echo $cart->product_name;?></a></td>
                                                 <td><?php echo $cart->price;?></td>
-                                                <td><input class="aa-cart-quantity" type="number"
+                                                <td><input class="aa-cart-quantity" id="cart_quantity" type="number"
                                                         value="<?php echo $cart->quantity; ?>"></td>
                                                 <td><?php echo $cart->price; ?></td>
                                             </tr>
@@ -430,7 +358,8 @@ if(empty($_SESSION['email'])){
                                         </tr>
                                     </tbody>
                                 </table>
-                                <a href="#" class="aa-cart-view-btn">Proced to Checkout</a>
+                                <a href="http://localhost/college_ecom/public/checkout.php"
+                                    class="aa-cart-view-btn">Proced to Checkout</a>
                             </div>
                         </div>
                     </div>
@@ -602,6 +531,14 @@ if(empty($_SESSION['email'])){
     <!-- Custom js -->
     <script src="js/custom.js"></script>
 
+    <script>
+    $('#cart_quantity').change(() => {
+        let quantity = $('#cart_quantity').val()
+        alert(quantity)
+    })
+    </script>
+
 </body>
+
 
 </html>

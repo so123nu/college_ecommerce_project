@@ -7,11 +7,11 @@ $response = new Response;
  
   if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-            if(isset($_POST['logout'])){
-            if($_POST['logout'] == 'logout_user'){
-                session_destroy();
+        if(isset($_POST['logout'])){
+                if($_POST['logout'] == 'logout_user'){
+                    session_destroy();
+                }
             }
-        }
       
        if(isset($_POST['email'])){
         $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
@@ -43,9 +43,21 @@ $response = new Response;
 
   }
 
+  //products for sports section
   $sportsProducts = $db->getSportsProduct();
+  //products for electronics section
   $electronicsProducts = $db->getElectronicsProduct();
- 
+ //cart items
+ if(!empty($_SESSION['id'])){
+  $carts = $db->getCartByUser($_SESSION['id']);
+ }
+  //cart total price
+  $cartTotal = 0;
+  if(!empty($carts)){
+  foreach($carts as $cart){
+      $cartTotal +=  $cart->price;
+    }
+}
 
 ?>
 
@@ -162,7 +174,9 @@ $response = new Response;
                                     <i class="fa fa-user-circle-o" aria-hidden="true"></i>
                                     <li><a href="account.php"><?php echo $_SESSION['name']; ?></a></li>
                                     <?php endif; ?>
+                                    <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
+                                    <?php endif; ?>
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
@@ -208,38 +222,36 @@ $response = new Response;
                                 <a class="aa-cart-link" href="cart.php">
                                     <span class="fa fa-shopping-basket"></span>
                                     <span class="aa-cart-title">SHOPPING CART</span>
-                                    <span class="aa-cart-notify">2</span>
+                                    <?php if(!empty($_SESSION['id'])): ?><span
+                                        class="aa-cart-notify"><?php  echo $db->getCartCount($_SESSION['id']);  ?></span><?php endif; ?>
                                 </a>
                                 <div class="aa-cartbox-summary">
                                     <ul>
+                                        <?php if(!empty($carts)): ?>
+                                        <?php foreach($carts as $cart): ?>
                                         <li>
-                                            <a class="aa-cartbox-img" href="#"><img src="img/woman-small-2.jpg"
-                                                    alt="img"></a>
+                                            <a class="aa-cartbox-img" href="#"><img
+                                                    src="photos/<?php echo $cart->product_image; ?>" alt="img"></a>
                                             <div class="aa-cartbox-info">
-                                                <h4><a href="#">Product Name</a></h4>
-                                                <p>1 x $250</p>
+                                                <h4><a href="#"><?php echo $cart->product_name; ?></a></h4>
+                                                <p><?php echo $cart->quantity; ?> x <?php echo $cart->price; ?></p>
                                             </div>
                                             <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
                                         </li>
-                                        <li>
-                                            <a class="aa-cartbox-img" href="#"><img src="img/woman-small-1.jpg"
-                                                    alt="img"></a>
-                                            <div class="aa-cartbox-info">
-                                                <h4><a href="#">Product Name</a></h4>
-                                                <p>1 x $250</p>
-                                            </div>
-                                            <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
-                                        </li>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
+
                                         <li>
                                             <span class="aa-cartbox-total-title">
                                                 Total
                                             </span>
                                             <span class="aa-cartbox-total-price">
-                                                $500
+                                                &#8377; <?php echo $cartTotal; ?>
                                             </span>
                                         </li>
                                     </ul>
-                                    <a class="aa-cartbox-checkout aa-primary-btn" href="checkout.html">Checkout</a>
+                                    <a class="aa-cartbox-checkout aa-primary-btn"
+                                        href="http://localhost/college_ecom/public/checkout.php">Checkout</a>
                                 </div>
                             </div>
                             <!-- / cart box -->
@@ -453,8 +465,9 @@ $response = new Response;
                                                     <a class="aa-product-img" href="#"><img
                                                             src="../public/photos/<?php echo $electronicProduct->image; ?>"
                                                             alt="polo shirt img" class='product_image'></a>
-                                                    <a class="aa-add-card-btn" href="#"><span
-                                                            class="fa fa-shopping-cart"></span>Add To Cart</a>
+                                                    <a class="aa-add-card-btn"
+                                                        href="cart.php?id=<?php echo $electronicProduct->productID; ?>">
+                                                        <span class="fa fa-shopping-cart"></span>Add To Cart</a>
                                                     <figcaption class="product_detail">
                                                         <h4 class="aa-product-title"><a href="#">This is Title</a></h4>
                                                         <span
