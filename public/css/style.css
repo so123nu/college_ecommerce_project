@@ -1142,6 +1142,10 @@ img {
   text-align: center;
 } 
 
+.hide_id{
+  display: none !important;
+}
+
 
 .aa-product-catg li:hover figure .aa-product-img {
   background-color: rgba(0, 0, 0, .5);

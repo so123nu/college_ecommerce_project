@@ -35,6 +35,54 @@ if(empty($_SESSION['email'])){
       $cartTotal +=  $cart->price;
     }
 }
+
+  if($_SERVER['REQUEST_METHOD'] == 'POST'){
+       //logout user
+       if(isset($_POST['logout'])){
+        if($_POST['logout'] == 'logout_user'){
+            session_destroy();
+           }
+        }
+
+        //login using modal
+        if(isset($_POST['email'])){
+        $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
+        $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
+
+
+
+        if($db->validateUserEmail($email)){
+            $userDetails = $db->userDetails($email);
+
+            if(password_verify($password,$userDetails->password)){
+                $_SESSION['name'] = $userDetails->name;
+                $_SESSION['id'] = $userDetails->id;
+                $_SESSION['email'] = $userDetails->email;
+                $response->success("Login Success");
+                exit;
+            }else{
+                $response->error("Invalid login Credentials!");
+                exit;
+            }
+
+        }else{
+            $response->error("Email Not Found!Please Sign Up.");
+            exit;
+        }
+
+        }
+
+        if(isset($_POST['key']) && isset($_POST['id'])){
+            $id = filter_var($_POST['id'],FILTER_SANITIZE_NUMBER_INT);
+
+            //delete product from cart
+           $db->deleteCartItem($id);
+           return $response->success('Cart Item Removed Successfully!');
+          
+       
+            
+        }
+  }
  ?>
 
 <!DOCTYPE html>
@@ -320,9 +368,13 @@ if(empty($_SESSION['email'])){
                                             </tr>
                                         </thead>
                                         <tbody>
+
+                                            <div id="delete_cart_message" class="text-danger"></div>
                                             <?php if(!empty($carts)): ?>
                                             <?php foreach($carts as $cart): ?>
                                             <tr>
+                                                <td class="hide_id"> <a href=""><?php echo $cart->product_id; ?></a>
+                                                </td>
                                                 <td><a class="remove" href="#">
                                                         <fa class="fa fa-close"></fa>
                                                     </a></td>
@@ -490,11 +542,12 @@ if(empty($_SESSION['email'])){
                 <div class="modal-body">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4>Login or Register</h4>
-                    <form class="aa-login-form" action="">
-                        <label for="">Username or Email address<span>*</span></label>
-                        <input type="text" placeholder="Username or email">
+                    <form class="aa-login-form" id="login_form">
+                        <div id="login_err" class="text-danger"></div>
+                        <label for=""> Email address<span>*</span></label>
+                        <input type="text" placeholder="user@gmail.com" required id="email">
                         <label for="">Password<span>*</span></label>
-                        <input type="password" placeholder="Password">
+                        <input type="password" placeholder="Password" id="password" required name="password">
                         <button class="aa-browse-btn" type="submit">Login</button>
                         <label for="rememberme" class="rememberme"><input type="checkbox" id="rememberme"> Remember me
                         </label>
@@ -530,13 +583,49 @@ if(empty($_SESSION['email'])){
     <script type="text/javascript" src="js/nouislider.js"></script>
     <!-- Custom js -->
     <script src="js/custom.js"></script>
+    <script src="js/main.js"></script>
 
     <script>
-    $('#cart_quantity').change(() => {
-        let quantity = $('#cart_quantity').val()
-        alert(quantity)
-    })
+    document.body.addEventListener("click", deleteCartProduct)
+
+    function deleteCartProduct(e) {
+        e.preventDefault();
+        let productId = 0;
+
+        //Fetch Product Id From DOM
+        if (e.target.parentElement.classList.contains('remove')) {
+            productId = e.target.parentElement.parentElement.parentElement.firstElementChild.innerText
+            e.target.parentElement.parentElement.parentElement.remove();
+        }
+
+        //remove product from cart
+        $.ajax({
+            url: "cart.php",
+            data: {
+                key: "deleteCartItem",
+                id: productId,
+            },
+            method: "POST",
+            success: function(response) {
+                let responseData = JSON.parse(response)
+                if (responseData.status == 403) {
+
+                }
+
+                if (responseData.status == 200) {
+                    $('#delete_cart_message').html(responseData.message)
+                }
+
+            },
+            error: function(response) {
+
+            }
+        });
+
+
+    }
     </script>
+
 
 </body>
 

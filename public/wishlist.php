@@ -18,6 +18,42 @@ $db = new Database();
     }
 }
 
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    //logout user
+    if(isset($_POST['logout'])){
+     if($_POST['logout'] == 'logout_user'){
+         session_destroy();
+        }
+     }
+
+     //login using modal
+     if(isset($_POST['email'])){
+     $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
+     $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
+
+
+
+     if($db->validateUserEmail($email)){
+         $userDetails = $db->userDetails($email);
+
+         if(password_verify($password,$userDetails->password)){
+             $_SESSION['name'] = $userDetails->name;
+             $_SESSION['id'] = $userDetails->id;
+             $_SESSION['email'] = $userDetails->email;
+             $response->success("Login Success");
+             exit;
+         }else{
+             $response->error("Invalid login Credentials!");
+             exit;
+         }
+
+     }else{
+         $response->error("Email Not Found!Please Sign Up.");
+         exit;
+     }
+
+     }
+}
 
 ?>
 
@@ -466,11 +502,12 @@ $db = new Database();
                 <div class="modal-body">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4>Login or Register</h4>
-                    <form class="aa-login-form" action="">
-                        <label for="">Username or Email address<span>*</span></label>
-                        <input type="text" placeholder="Username or email">
+                    <form class="aa-login-form" id="login_form">
+                        <div id="login_err" class="text-danger"></div>
+                        <label for=""> Email address<span>*</span></label>
+                        <input type="text" placeholder="user@gmail.com" required id="email">
                         <label for="">Password<span>*</span></label>
-                        <input type="password" placeholder="Password">
+                        <input type="password" placeholder="Password" id="password" required name="password">
                         <button class="aa-browse-btn" type="submit">Login</button>
                         <label for="rememberme" class="rememberme"><input type="checkbox" id="rememberme"> Remember me
                         </label>
@@ -483,6 +520,7 @@ $db = new Database();
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div>
+
 
 
 
@@ -506,6 +544,7 @@ $db = new Database();
     <script type="text/javascript" src="js/nouislider.js"></script>
     <!-- Custom js -->
     <script src="js/custom.js"></script>
+    <script src="js/main.js"></script>
 
 
 </body>

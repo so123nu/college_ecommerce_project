@@ -286,6 +286,21 @@ public function getCartCount($userId){
 
   return $rowCount;
 }
+
+public function deleteCartItem($id){
+  $sql = 'DELETE FROM `cart` WHERE product_id=:product_id';
+  //prepare query
+  $this->prepare($sql);
+  //bind product id 
+  $this->bind(':product_id',$id);
+   //execute query
+  if($this->execute()){
+    return true;
+  }else{
+    return false;
+  }
+  
+}
    
 
 }

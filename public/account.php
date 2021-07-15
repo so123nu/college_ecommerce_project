@@ -79,6 +79,42 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         }
     
        }
+
+
+       //logout user
+       if(isset($_POST['logout'])){
+        if($_POST['logout'] == 'logout_user'){
+            session_destroy();
+           }
+        }
+
+        //login using modal
+        if(isset($_POST['email'])){
+        $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
+        $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
+
+
+
+        if($db->validateUserEmail($email)){
+            $userDetails = $db->userDetails($email);
+
+            if(password_verify($password,$userDetails->password)){
+                $_SESSION['name'] = $userDetails->name;
+                $_SESSION['id'] = $userDetails->id;
+                $_SESSION['email'] = $userDetails->email;
+                $response->success("Login Success");
+                exit;
+            }else{
+                $response->error("Invalid login Credentials!");
+                exit;
+            }
+
+        }else{
+            $response->error("Email Not Found!Please Sign Up.");
+            exit;
+        }
+
+        }
       
 }
 
@@ -552,6 +588,34 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     </footer>
     <!-- / footer -->
 
+    <!-- Login Modal -->
+    <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4>Login or Register</h4>
+                    <form class="aa-login-form" id="login_form">
+                        <div id="login_err" class="text-danger"></div>
+                        <label for=""> Email address<span>*</span></label>
+                        <input type="text" placeholder="user@gmail.com" required id="email">
+                        <label for="">Password<span>*</span></label>
+                        <input type="password" placeholder="Password" id="password" required name="password">
+                        <button class="aa-browse-btn" type="submit">Login</button>
+                        <label for="rememberme" class="rememberme"><input type="checkbox" id="rememberme"> Remember me
+                        </label>
+                        <p class="aa-lost-password"><a href="#">Lost your password?</a></p>
+                        <div class="aa-register-now">
+                            Don't have an account?<a href="account.php">Register now!</a>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+
+
 
 
 
@@ -575,6 +639,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <script type="text/javascript" src="js/nouislider.js"></script>
     <!-- Custom js -->
     <script src="js/custom.js"></script>
+    <script src="js/main.js"></script>
 
 
 </body>
