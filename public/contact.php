@@ -1,3 +1,62 @@
+<?php 
+session_start();
+require_once('../private/Database.php');
+
+$db = new Database();
+
+
+
+ //cart items
+ if(!empty($_SESSION['id'])){
+  $carts = $db->getCartByUser($_SESSION['id']);
+ }
+  //cart total price
+  $cartTotal = 0;
+  if(!empty($carts)){
+  foreach($carts as $cart){
+      $cartTotal +=  $cart->price;
+    }
+}
+
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    //logout user
+    if(isset($_POST['logout'])){
+     if($_POST['logout'] == 'logout_user'){
+         session_destroy();
+        }
+     }
+
+     //login using modal
+     if(isset($_POST['email'])){
+     $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
+     $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
+
+
+
+     if($db->validateUserEmail($email)){
+         $userDetails = $db->userDetails($email);
+
+         if(password_verify($password,$userDetails->password)){
+             $_SESSION['name'] = $userDetails->name;
+             $_SESSION['id'] = $userDetails->id;
+             $_SESSION['email'] = $userDetails->email;
+             $response->success("Login Success");
+             exit;
+         }else{
+             $response->error("Invalid login Credentials!");
+             exit;
+         }
+
+     }else{
+         $response->error("Email Not Found!Please Sign Up.");
+         exit;
+     }
+
+     }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -99,11 +158,26 @@
                             <!-- / header top left -->
                             <div class="aa-header-top-right">
                                 <ul class="aa-head-top-nav-right">
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                                    <li><a href="account.php"><?php echo $_SESSION['name']; ?></a></li>
+                                    <?php endif; ?>
+                                    <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
+                                    <?php endif; ?>
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <li>
+                                        <form action="index.php" method="POST">
+                                            <input type="submit" value="Logout" class="logout">
+                                            <input type="hidden" name="logout" value="logout_user">
+                                        </form>
+                                    </li>
+                                    <?php else: ?>
                                     <li><a href="" data-toggle="modal" data-target="#login-modal">Login</a></li>
+                                    <?php endif; ?>
                                 </ul>
                             </div>
                         </div>
@@ -135,38 +209,36 @@
                                 <a class="aa-cart-link" href="cart.php">
                                     <span class="fa fa-shopping-basket"></span>
                                     <span class="aa-cart-title">SHOPPING CART</span>
-                                    <span class="aa-cart-notify">2</span>
+                                    <?php if(!empty($_SESSION['id'])): ?><span
+                                        class="aa-cart-notify"><?php  echo $db->getCartCount($_SESSION['id']);  ?></span><?php endif; ?>
                                 </a>
                                 <div class="aa-cartbox-summary">
                                     <ul>
+                                        <?php if(!empty($carts)): ?>
+                                        <?php foreach($carts as $cart): ?>
                                         <li>
-                                            <a class="aa-cartbox-img" href="#"><img src="img/woman-small-2.jpg"
-                                                    alt="img"></a>
+                                            <a class="aa-cartbox-img" href="#"><img
+                                                    src="photos/<?php echo $cart->product_image; ?>" alt="img"></a>
                                             <div class="aa-cartbox-info">
-                                                <h4><a href="#">Product Name</a></h4>
-                                                <p>1 x $250</p>
+                                                <h4><a href="#"><?php echo $cart->product_name; ?></a></h4>
+                                                <p><?php echo $cart->quantity; ?> x <?php echo $cart->price; ?></p>
                                             </div>
                                             <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
                                         </li>
-                                        <li>
-                                            <a class="aa-cartbox-img" href="#"><img src="img/woman-small-1.jpg"
-                                                    alt="img"></a>
-                                            <div class="aa-cartbox-info">
-                                                <h4><a href="#">Product Name</a></h4>
-                                                <p>1 x $250</p>
-                                            </div>
-                                            <a class="aa-remove-product" href="#"><span class="fa fa-times"></span></a>
-                                        </li>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
+
                                         <li>
                                             <span class="aa-cartbox-total-title">
                                                 Total
                                             </span>
                                             <span class="aa-cartbox-total-price">
-                                                $500
+                                                &#8377; <?php echo $cartTotal; ?>
                                             </span>
                                         </li>
                                     </ul>
-                                    <a class="aa-cartbox-checkout aa-primary-btn" href="#">Checkout</a>
+                                    <a class="aa-cartbox-checkout aa-primary-btn"
+                                        href="http://localhost/college_ecom/public/checkout.php">Checkout</a>
                                 </div>
                             </div>
                             <!-- / cart box -->
@@ -205,87 +277,6 @@
                         <!-- Left nav -->
                         <ul class="nav navbar-nav">
                             <li><a href="index.php">Home</a></li>
-                            <li><a href="#">Men <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Casual</a></li>
-                                    <li><a href="#">Sports</a></li>
-                                    <li><a href="#">Formal</a></li>
-                                    <li><a href="#">Standard</a></li>
-                                    <li><a href="#">T-Shirts</a></li>
-                                    <li><a href="#">Shirts</a></li>
-                                    <li><a href="#">Jeans</a></li>
-                                    <li><a href="#">Trousers</a></li>
-                                    <li><a href="#">And more.. <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">Sleep Wear</a></li>
-                                            <li><a href="#">Sandals</a></li>
-                                            <li><a href="#">Loafers</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Women <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Kurta & Kurti</a></li>
-                                    <li><a href="#">Trousers</a></li>
-                                    <li><a href="#">Casual</a></li>
-                                    <li><a href="#">Sports</a></li>
-                                    <li><a href="#">Formal</a></li>
-                                    <li><a href="#">Sarees</a></li>
-                                    <li><a href="#">Shoes</a></li>
-                                    <li><a href="#">And more.. <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">Sleep Wear</a></li>
-                                            <li><a href="#">Sandals</a></li>
-                                            <li><a href="#">Loafers</a></li>
-                                            <li><a href="#">And more.. <span class="caret"></span></a>
-                                                <ul class="dropdown-menu">
-                                                    <li><a href="#">Rings</a></li>
-                                                    <li><a href="#">Earrings</a></li>
-                                                    <li><a href="#">Jewellery Sets</a></li>
-                                                    <li><a href="#">Lockets</a></li>
-                                                    <li class="disabled"><a class="disabled" href="#">Disabled item</a>
-                                                    </li>
-                                                    <li><a href="#">Jeans</a></li>
-                                                    <li><a href="#">Polo T-Shirts</a></li>
-                                                    <li><a href="#">SKirts</a></li>
-                                                    <li><a href="#">Jackets</a></li>
-                                                    <li><a href="#">Tops</a></li>
-                                                    <li><a href="#">Make Up</a></li>
-                                                    <li><a href="#">Hair Care</a></li>
-                                                    <li><a href="#">Perfumes</a></li>
-                                                    <li><a href="#">Skin Care</a></li>
-                                                    <li><a href="#">Hand Bags</a></li>
-                                                    <li><a href="#">Single Bags</a></li>
-                                                    <li><a href="#">Travel Bags</a></li>
-                                                    <li><a href="#">Wallets & Belts</a></li>
-                                                    <li><a href="#">Sunglases</a></li>
-                                                    <li><a href="#">Nail</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Kids <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">Casual</a></li>
-                                    <li><a href="#">Sports</a></li>
-                                    <li><a href="#">Formal</a></li>
-                                    <li><a href="#">Standard</a></li>
-                                    <li><a href="#">T-Shirts</a></li>
-                                    <li><a href="#">Shirts</a></li>
-                                    <li><a href="#">Jeans</a></li>
-                                    <li><a href="#">Trousers</a></li>
-                                    <li><a href="#">And more.. <span class="caret"></span></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#">Sleep Wear</a></li>
-                                            <li><a href="#">Sandals</a></li>
-                                            <li><a href="#">Loafers</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
                             <li><a href="#">Sports</a></li>
                             <li><a href="#">Digital <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -296,16 +287,9 @@
                                     <li><a href="#">Accesories</a></li>
                                 </ul>
                             </li>
-                            <li><a href="#">Furniture</a></li>
 
                             <li><a href="contact.php">Contact</a></li>
-                            <li><a href="#">Pages <span class="caret"></span></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="product.php">Shop Page</a></li>
-                                    <li><a href="product-detail.php">Shop Single</a></li>
-                                    <li><a href="404.php">404 Page</a></li>
-                                </ul>
-                            </li>
+
                         </ul>
                     </div>
                     <!--/.nav-collapse -->
@@ -527,11 +511,12 @@
                 <div class="modal-body">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4>Login or Register</h4>
-                    <form class="aa-login-form" action="">
-                        <label for="">Username or Email address<span>*</span></label>
-                        <input type="text" placeholder="Username or email">
+                    <form class="aa-login-form" id="login_form">
+                        <div id="login_err" class="text-danger"></div>
+                        <label for=""> Email address<span>*</span></label>
+                        <input type="text" placeholder="user@gmail.com" required id="email">
                         <label for="">Password<span>*</span></label>
-                        <input type="password" placeholder="Password">
+                        <input type="password" placeholder="Password" id="password" required name="password">
                         <button class="aa-browse-btn" type="submit">Login</button>
                         <label for="rememberme" class="rememberme"><input type="checkbox" id="rememberme"> Remember me
                         </label>
@@ -544,7 +529,6 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div>
-
 
     <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -566,6 +550,7 @@
     <script type="text/javascript" src="js/nouislider.js"></script>
     <!-- Custom js -->
     <script src="js/custom.js"></script>
+    <script src="js/main.js"></script>
 
 
 </body>

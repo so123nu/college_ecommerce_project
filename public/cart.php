@@ -77,11 +77,39 @@ if(empty($_SESSION['email'])){
 
             //delete product from cart
            $db->deleteCartItem($id);
-           return $response->success('Cart Item Removed Successfully!');
+         
           
-       
-            
+           //update cart details
+           $carts = $db->getCartByUser($_SESSION['id']);
+           $cartTotal = 0;
+           foreach($carts as $cart){
+            $cartTotal +=  $cart->price;
+          }
+
+          return $response->success('Cart Item Removed Successfully!',$cartTotal);
         }
+
+        if(isset($_POST['key']) && isset($_POST['product_id'])){
+            $id = filter_var($_POST['product_id'],FILTER_SANITIZE_NUMBER_INT);
+            $quantity = filter_var($_POST['quantity'],FILTER_SANITIZE_NUMBER_INT);
+
+            $finalquantity = $db->updateCart($id,$quantity);
+
+            $cartSingleElement = $db->getCartSingleElement($id);
+           
+            $carts = $db->getCartByUser($_SESSION['id']);
+            $cartTotal = 0;
+            foreach($carts as $cart){
+             $cartTotal +=  $cart->price;
+           }
+
+           $data = [ "quantity" => $finalquantity , "cartTotal" => $cartTotal ,"productTotalPrice" => $cartSingleElement->price ];
+
+           return $response->success('Cart Item Updated Successfully!',$data);
+ 
+
+        }
+
   }
  ?>
 
@@ -382,7 +410,7 @@ if(empty($_SESSION['email'])){
                                                             alt="img"></a></td>
                                                 <td><a class="aa-cart-title"
                                                         href="#"><?php echo $cart->product_name;?></a></td>
-                                                <td><?php echo $cart->price;?></td>
+                                                <td><?php echo $cart->product_price;?></td>
                                                 <td><input class="aa-cart-quantity" id="cart_quantity" type="number"
                                                         value="<?php echo $cart->quantity; ?>"></td>
                                                 <td><?php echo $cart->price; ?></td>
@@ -401,12 +429,12 @@ if(empty($_SESSION['email'])){
                                     <tbody>
                                         <tr>
                                             <th>Subtotal</th>
-                                            <td><?php echo $cartTotal; ?></td>
+                                            <td id="subtotal"><?php echo $cartTotal; ?></td>
 
                                         </tr>
                                         <tr>
                                             <th>Total</th>
-                                            <td><?php echo $cartTotal; ?></td>
+                                            <td id="total"><?php echo $cartTotal; ?></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -589,43 +617,86 @@ if(empty($_SESSION['email'])){
     document.body.addEventListener("click", deleteCartProduct)
 
     function deleteCartProduct(e) {
-        e.preventDefault();
+
         let productId = 0;
 
         //Fetch Product Id From DOM
         if (e.target.parentElement.classList.contains('remove')) {
+            e.preventDefault();
             productId = e.target.parentElement.parentElement.parentElement.firstElementChild.innerText
             e.target.parentElement.parentElement.parentElement.remove();
+
+            //remove product from cart
+            $.ajax({
+                url: "cart.php",
+                data: {
+                    key: "deleteCartItem",
+                    id: productId,
+                },
+                method: "POST",
+                success: function(response) {
+                    let responseData = JSON.parse(response)
+                    if (responseData.status == 403) {
+
+                    }
+
+                    if (responseData.status == 200) {
+                        //update total and subtotal values
+                        $('#total').html(responseData.data)
+                        $('#subtotal').html(responseData.data)
+                        $('#delete_cart_message').html(responseData.message)
+                    }
+
+                },
+                error: function(response) {
+
+                }
+            });
         }
 
-        //remove product from cart
-        $.ajax({
-            url: "cart.php",
-            data: {
-                key: "deleteCartItem",
-                id: productId,
-            },
-            method: "POST",
-            success: function(response) {
-                let responseData = JSON.parse(response)
-                if (responseData.status == 403) {
+
+        //update cart quantity
+        if (e.target.classList.contains("aa-cart-quantity")) {
+            let quantity = e.target.value;
+            let product_id = e.target.parentElement.parentElement.firstElementChild.innerText;
+            let cartTotalSingleElement = e.target.parentElement.parentElement.lastElementChild;
+
+            $.ajax({
+                url: "cart.php",
+                data: {
+                    key: "update_cart_quantity",
+                    product_id: product_id,
+                    quantity: quantity
+                },
+                method: "POST",
+                success: function(response) {
+                    let responseData = JSON.parse(response)
+                    if (responseData.status == 403) {
+
+                    }
+
+                    if (responseData.status == 200) {
+                        //update total and subtotal values
+                        if (responseData.data.quantity > 0) {
+                            $('#total').html(responseData.data.cartTotal)
+                            $('#subtotal').html(responseData.data.cartTotal)
+                            $('.aa-cart-quantity').html(responseData.data.quantity)
+                            cartTotalSingleElement.innerText = responseData.data.productTotalPrice
+
+                        }
+
+                    }
+
+                },
+                error: function(response) {
 
                 }
-
-                if (responseData.status == 200) {
-                    $('#delete_cart_message').html(responseData.message)
-                }
-
-            },
-            error: function(response) {
-
-            }
-        });
+            });
+        }
 
 
     }
     </script>
-
 
 </body>
 

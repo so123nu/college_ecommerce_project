@@ -236,11 +236,12 @@ public function getProductDetails($productId){
 }
 
 public function addProductToCart($productDetails,$userId){
-  $sql = 'Insert into cart (product_id,price,product_name,product_image,quantity,user_id) values (:product_id,:price,:product_name,:product_image,:quantity,:user_id)';
+  $sql = 'Insert into cart (product_id,price,product_name,product_image,product_price,quantity,user_id) values (:product_id,:price,:product_name,:product_image,:product_price,:quantity,:user_id)';
   $this->prepare($sql);
    // bind values to prepared variables
   $this->bind(':product_id',$productDetails->productID);
   $this->bind(':price',$productDetails->price);
+  $this->bind(':product_price',$productDetails->price);
   $this->bind(':product_name',$productDetails->Pname);
   $this->bind(':product_image',$productDetails->image);
   $this->bind(':quantity',1);
@@ -268,6 +269,8 @@ public function getCartByUser($userId){
   //return sports products
   return $result;
 }
+
+
    
 
 public function getCartCount($userId){
@@ -301,7 +304,106 @@ public function deleteCartItem($id){
   }
   
 }
-   
+
+//featured products
+public function featuredProducts(){
+  //sql query to select user sports products
+  $sql = 'SELECT * FROM `product` p JOIN rating_table r on p.productID = r.pID WHERE r.rating > :rating';
+  //prepare query
+  $this->prepare($sql);
+  //bind rating 
+  $this->bind(':rating',3.5);
+   //execute query
+  $this->execute();
+  //fetch multiple sports products record
+  $result = $this->fetchMultiple();
+  //return featured products
+  return $result;
+
+}
+
+public function getCartSingleElement($productId){
+  //sql query to select user sports products
+  $sql = 'Select * from cart Where product_id = :productId';
+  //prepare query
+  $this->prepare($sql);
+  //bind rating 
+  $this->bind(':productId',$productId);
+   //execute query
+  $this->execute();
+  
+   $result = $this->fetchSingle();
+   return $result;
+}
+
+
+public function updateCart($productId,$quantity){
+//sql query to select user sports products
+$sql = 'Select * from cart Where product_id = :productId';
+//prepare query
+$this->prepare($sql);
+//bind rating 
+$this->bind(':productId',$productId);
+ //execute query
+$this->execute();
+
+$result = $this->fetchSingle();
+  
+//updated cart details
+if($quantity > 0){
+
+  $finalquantity = $quantity;
+  $finalprice = $finalquantity * $result->product_price;
+
+  $sql = 'Update cart SET price=:price, quantity =:quantity Where product_id =:productId';
+  //prepare query
+  $this->prepare($sql);
+  //bind rating 
+  $this->bind(':productId',$result->product_id);
+  $this->bind(':price',$finalprice);
+  $this->bind(':quantity',$finalquantity);
+  //execute query
+  $this->execute();
+  return $finalquantity;
+}
+
+}
+
+public function applyCoupon($couponCode,$cartTotal){
+  $sql = 'Select * from coupon Where coupon_code =:coupon_code';
+  //prepare query
+  $this->prepare($sql);
+  //bind rating 
+  $this->bind(':coupon_code',$couponCode);
+  $this->execute();
+  $result = $this->fetchSingle();
+  $rowCount = $this->rowCount();
+
+  if($rowCount == 0){
+    return '<div class="alert alert-danger"><strong>Failed</strong>.Invalid Coupon Code!</div>';
+  }else{
+    if($result->is_active = 0){
+      return '<div class="alert alert-danger"><strong>Failed</strong>.Coupon Code has Expired!</div>';
+    }else{
+      
+        $discountedPrice = $cartTotal *  ($result->discount_percentage/100);
+         
+        if($discountedPrice > $result->discount_upto){
+          $total = $cartTotal - $result->discount_upto;
+          return $total;
+        }else{
+          $total = $cartTotal - $result->discountedPrice;
+          return $total;
+        }
+
+    }
+     
+  }
+
+
+}
+
+
 
 }
 
