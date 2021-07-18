@@ -16,7 +16,7 @@ if(empty($_SESSION['email'])){
    if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['id'])){
       $productId = $_GET['id'];
       //get product details
-       $productDetails = $db->getProductDetails($productId); 
+       $productDetails = $db->getProductDetails(base64_decode($productId)); 
       //get user id
       $userId = $_SESSION['id'];
       //add product to cart

@@ -41,6 +41,11 @@ class Database{
    public function execute(){
      //execute Query
      $this->stmt->execute();
+    
+   }
+
+   public function lastInsertedId(){
+    return $this->dbh->lastInsertId();
    }
 
    public function fetchSingle(){
@@ -401,6 +406,47 @@ public function applyCoupon($couponCode,$cartTotal){
   }
 
 
+}
+
+public function storePaymentDetails($userId,$paymentId,$amount){
+  $sql = 'Insert into orders (user_id,total_amount,payment_id) values (:user_id,:total_amount,:payment_id)';
+    $this->prepare($sql);
+    //bind rating 
+    $this->bind(':user_id',$userId);
+    $this->bind(':payment_id',$paymentId);
+    $this->bind(':total_amount',$amount);
+    $this->execute();
+
+    return $this->lastInsertedId();
+  
+}
+
+public function storeOrderDetails($userId,$orderId){
+    $carts = $this->getCartByUser($userId);   
+
+    foreach($carts as $cart){
+      $sql = 'Insert into order_details (order_id,user_id,product_id,product_price,product_name,product_image,quantity) 
+              values (:order_id,:user_id,:product_id,:product_price,:product_name,:product_image,:quantity)';
+      $this->prepare($sql);
+      //bind order details 
+      $this->bind(':order_id',$orderId);
+      $this->bind(':user_id',$userId);
+      $this->bind(':product_id',$cart->product_id);
+      $this->bind(':product_price',$cart->product_price);
+      $this->bind(':product_name',$cart->product_name);
+      $this->bind(':product_image',$cart->product_image);
+      $this->bind(':quantity',$cart->quantity);
+      $this->execute();
+    }
+
+    //Delete Cart Details
+      $sql = 'DELETE FROM `cart` WHERE user_id=:user_id';
+      $this->prepare($sql);
+      //bind user ID
+      $this->bind(':user_id',$userId);
+      $this->execute();
+    
+ 
 }
 
 

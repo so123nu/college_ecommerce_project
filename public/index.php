@@ -428,7 +428,7 @@ $response = new Response;
                                                             alt="polo shirt img" class='product_image'></a>
 
                                                     <a class="aa-add-card-btn"
-                                                        href="cart.php?id=<?php echo $sportProduct->productID; ?>">
+                                                        href="cart.php?id=<?php echo base64_encode($sportProduct->productID); ?>">
                                                         <span class="fa fa-shopping-cart"></span>Add To Cart</a>
                                                     <figcaption class="product_detail_sports">
                                                         <h4 class="aa-product-title"><a
@@ -473,7 +473,7 @@ $response = new Response;
                                                             src="../public/photos/<?php echo $electronicProduct->image; ?>"
                                                             alt="polo shirt img" class='product_image'></a>
                                                     <a class="aa-add-card-btn"
-                                                        href="cart.php?id=<?php echo $electronicProduct->productID; ?>">
+                                                        href="cart.php?id=<?php echo base64_encode($electronicProduct->productID); ?>">
                                                         <span class="fa fa-shopping-cart"></span>Add To Cart</a>
                                                     <figcaption class="product_detail">
                                                         <h4 class="aa-product-title"><a href="#">This is Title</a></h4>
@@ -647,7 +647,7 @@ $response = new Response;
                                                         src="../public/photos/<?php echo $featuredProduct->image; ?>"
                                                         alt="polo shirt img" class='product_image'></a>
                                                 <a class="aa-add-card-btn"
-                                                    href="cart.php?id=<?php echo $featuredProduct->productID; ?>">
+                                                    href="cart.php?id=<?php echo base64_encode($featuredProduct->productID); ?>">
                                                     <span class="fa fa-shopping-cart"></span>Add To Cart</a>
                                                 <figcaption class="product_detail">
                                                     <h4 class="aa-product-title"><a

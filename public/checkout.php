@@ -623,7 +623,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                                 </tr>
                                                 <tr>
                                                     <th>Total</th>
-                                                    <td>&#x20b9;<?php echo $cartTotal + $cartTotal * .18; ?></td>
+                                                    <td id="payment_final_price">
+                                                        &#x20b9;<?php echo $cartTotal + $cartTotal * .18; ?></td>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -633,10 +634,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                         <label for="cashdelivery"><input type="radio" id="cashdelivery"
                                                 name="optionsRadios"> Cash on Delivery </label>
                                         <label for="paypal"><input type="radio" id="paypal" name="optionsRadios"
-                                                checked> Via Paypal </label>
+                                                checked> E-Payment </label>
                                         <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_mc_vs_dc_ae.jpg"
                                             border="0" alt="PayPal Acceptance Mark">
-                                        <input type="submit" value="Place Order" class="aa-browse-btn">
+                                        <input type="submit" value="Place Order" class="aa-browse-btn" id="place_order">
                                     </div>
                                 </div>
                             </div>
@@ -790,6 +791,47 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <!-- Custom js -->
     <script src="js/custom.js"></script>
     <script src="js/main.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    $('#place_order').click(() => {
+        var totalAmount = <?php echo $cartTotal + ($cartTotal* 0.18); ?>;
+        var product_id = $(this).attr("data-id");
+        var options = {
+            "key": "rzp_test_3XILuaUm5DLslJ",
+            "amount": totalAmount * 100, // 2000 paise = INR 20
+            "name": "DailyShop",
+            "description": "Payment",
+            // "image": "",
+            "handler": function(response) {
+                $.ajax({
+                    url: 'http://localhost/college_ecom/public/payment-process.php',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        totalAmount: totalAmount,
+                        product_id: product_id,
+                    },
+                    success: function(msg) {
+
+                        window.location.href =
+                            'http://localhost/college_ecom/public/payment-success.php';
+
+                    },
+                    error: function(msg) {
+
+                    }
+                });
+            },
+            "theme": {
+                "color": "#528FF0"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+        e.preventDefault();
+    })
+    </script>
 
 </body>
 
