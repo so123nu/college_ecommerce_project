@@ -409,12 +409,13 @@ public function applyCoupon($couponCode,$cartTotal){
 }
 
 public function storePaymentDetails($userId,$paymentId,$amount){
-  $sql = 'Insert into orders (user_id,total_amount,payment_id) values (:user_id,:total_amount,:payment_id)';
+  $sql = 'Insert into orders (user_id,total_amount,payment_id,order_status) values (:user_id,:total_amount,:payment_id,:order_status)';
     $this->prepare($sql);
     //bind rating 
     $this->bind(':user_id',$userId);
     $this->bind(':payment_id',$paymentId);
     $this->bind(':total_amount',$amount);
+    $this->bind(':order_status','received');
     $this->execute();
 
     return $this->lastInsertedId();
