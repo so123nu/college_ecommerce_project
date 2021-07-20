@@ -2,7 +2,8 @@
 
 class Database{
     //Set database parameters
-    private $dbname = "college_ecom";
+    // private $dbname = "college_ecom";
+    private $dbname = "college_ecom_adminpanel";
     private $host = 'localhost';
     private $username = 'root';
     private $password = '';
@@ -27,6 +28,8 @@ class Database{
             echo $this->errmsg;
         }
    }
+
+  //  helpers
    
    public function prepare($sql){
      //prepare query
@@ -63,7 +66,11 @@ class Database{
       return $this->stmt->rowCount();
   }
 
-  
+  public function getDate(){
+    return date("Y-m-d h:i:s");
+  }
+
+  // end helpers
 
   public function validateUserEmail($email){
     //sql query to select user using email
@@ -106,8 +113,9 @@ class Database{
   //register user
   public function registerUser($name,$aadhaar,$email,$password){
     $is_active = 1;
+    $date = $this->getDate();
     $password = password_hash($password,PASSWORD_BCRYPT);
-     $sql = 'INSERT INTO `users`(`name`, `email`, `aadhaar`, `password`, `is_active`) VALUES (:name,:email,:aadhaar,:password,:is_active)';
+     $sql = 'INSERT INTO `users`(`name`, `email`, `aadhaar`, `password`, `is_active`,`created_at`) VALUES (:name,:email,:aadhaar,:password,:is_active,:created_at)';
     $this->prepare($sql);
      // bind values to prepared variables
     $this->bind(':name',$name);
@@ -115,6 +123,7 @@ class Database{
     $this->bind(':email',$email);
     $this->bind(':password',$password);
     $this->bind(':is_active',$is_active);
+    $this->bind(':created_at',$date);
 
    //execute query
     if($this->execute()){
@@ -128,7 +137,8 @@ class Database{
   //register Seller
   public function registerSeller($name,$email,$password,$gst,$pan){
     $password = password_hash($password,PASSWORD_BCRYPT);
-    $sql = 'Insert into sellers (name,email,password,gst,pan) values (:name,:email,:password,:gst,:pan)';
+    $date = $this->getDate();
+    $sql = 'Insert into sellers (name,email,password,gst,pan,created_at) values (:name,:email,:password,:gst,:pan,:created_at)';
     $this->prepare($sql);
      // bind values to prepared variables
     $this->bind(':name',$name);
@@ -136,6 +146,7 @@ class Database{
     $this->bind(':email',$email);
     $this->bind(':password',$password);
     $this->bind(':pan',$pan);
+    $this->bind(':created_at',$date);
 
    //execute query
     if($this->execute()){
@@ -180,7 +191,7 @@ public function sellerDetails($email){
 
 public function fetchCategory(){
     //sql query to select user using email
-    $sql = 'SELECT * FROM  category_table';
+    $sql = 'SELECT * FROM  categories';
     //prepare query
     $this->prepare($sql);
     //execute query
@@ -196,7 +207,7 @@ public function fetchCategory(){
 public function getSportsProduct(){
 
   //sql query to select user sports products
-  $sql = 'SELECT * FROM `product` join category_table on product.category_ID = category_table.category_ID
+  $sql = 'SELECT * FROM `products` join categories on products.category_ID = categories.category_ID
   Where category = "Sports"';
   //prepare query
   $this->prepare($sql);
@@ -212,7 +223,7 @@ public function getSportsProduct(){
 public function getElectronicsProduct(){
 
   //sql query to select user sports products
-  $sql = 'SELECT * FROM `product` join category_table on product.category_ID = category_table.category_ID
+  $sql = 'SELECT * FROM `products` join categories on products.category_ID = categories.category_ID
   Where category = "Electronics"';
   //prepare query
   $this->prepare($sql);
@@ -227,7 +238,7 @@ public function getElectronicsProduct(){
 
 public function getProductDetails($productId){
    //sql query to select user sports products
-   $sql = 'SELECT * FROM `product` Where productID = :productID';
+   $sql = 'SELECT * FROM `products` Where productID = :productID';
    //prepare query
    $this->prepare($sql);
    //bind product id 
@@ -241,7 +252,8 @@ public function getProductDetails($productId){
 }
 
 public function addProductToCart($productDetails,$userId){
-  $sql = 'Insert into cart (product_id,price,product_name,product_image,product_price,quantity,user_id) values (:product_id,:price,:product_name,:product_image,:product_price,:quantity,:user_id)';
+  $date = $this->getDate();
+  $sql = 'Insert into carts (product_id,price,product_name,product_image,product_price,quantity,user_id,created_at) values (:product_id,:price,:product_name,:product_image,:product_price,:quantity,:user_id,:created_at)';
   $this->prepare($sql);
    // bind values to prepared variables
   $this->bind(':product_id',$productDetails->productID);
@@ -251,6 +263,7 @@ public function addProductToCart($productDetails,$userId){
   $this->bind(':product_image',$productDetails->image);
   $this->bind(':quantity',1);
   $this->bind(':user_id',$userId);
+  $this->bind(':created_at',$date);
 
  //execute query
   if($this->execute()){
@@ -262,7 +275,7 @@ public function addProductToCart($productDetails,$userId){
 
 public function getCartByUser($userId){
   //sql query to select user sports products
-  $sql = 'SELECT * FROM `cart` Where user_id = :userID';
+  $sql = 'SELECT * FROM `carts` Where user_id = :userID';
   //prepare query
   $this->prepare($sql);
   //bind product id 
@@ -280,7 +293,7 @@ public function getCartByUser($userId){
 
 public function getCartCount($userId){
   //sql query to select user sports products
-  $sql = 'SELECT * FROM `cart` Where user_id = :userID';
+  $sql = 'SELECT * FROM `carts` Where user_id = :userID';
   //prepare query
   $this->prepare($sql);
   //bind product id 
@@ -296,7 +309,7 @@ public function getCartCount($userId){
 }
 
 public function deleteCartItem($id){
-  $sql = 'DELETE FROM `cart` WHERE product_id=:product_id';
+  $sql = 'DELETE FROM `carts` WHERE product_id=:product_id';
   //prepare query
   $this->prepare($sql);
   //bind product id 
@@ -313,7 +326,7 @@ public function deleteCartItem($id){
 //featured products
 public function featuredProducts(){
   //sql query to select user sports products
-  $sql = 'SELECT * FROM `product` p JOIN rating_table r on p.productID = r.pID WHERE r.rating > :rating';
+  $sql = 'SELECT * FROM `products` p JOIN ratings r on p.productID = r.pID WHERE r.rating > :rating';
   //prepare query
   $this->prepare($sql);
   //bind rating 
@@ -329,7 +342,7 @@ public function featuredProducts(){
 
 public function getCartSingleElement($productId){
   //sql query to select user sports products
-  $sql = 'Select * from cart Where product_id = :productId';
+  $sql = 'Select * from carts Where product_id = :productId';
   //prepare query
   $this->prepare($sql);
   //bind rating 
@@ -344,7 +357,7 @@ public function getCartSingleElement($productId){
 
 public function updateCart($productId,$quantity){
 //sql query to select user sports products
-$sql = 'Select * from cart Where product_id = :productId';
+$sql = 'Select * from carts Where product_id = :productId';
 //prepare query
 $this->prepare($sql);
 //bind rating 
@@ -360,7 +373,7 @@ if($quantity > 0){
   $finalquantity = $quantity;
   $finalprice = $finalquantity * $result->product_price;
 
-  $sql = 'Update cart SET price=:price, quantity =:quantity Where product_id =:productId';
+  $sql = 'Update carts SET price=:price, quantity =:quantity Where product_id =:productId';
   //prepare query
   $this->prepare($sql);
   //bind rating 
@@ -375,7 +388,7 @@ if($quantity > 0){
 }
 
 public function applyCoupon($couponCode,$cartTotal){
-  $sql = 'Select * from coupon Where coupon_code =:coupon_code';
+  $sql = 'Select * from coupons Where coupon_code =:coupon_code';
   //prepare query
   $this->prepare($sql);
   //bind rating 
@@ -409,13 +422,16 @@ public function applyCoupon($couponCode,$cartTotal){
 }
 
 public function storePaymentDetails($userId,$paymentId,$amount){
-  $sql = 'Insert into orders (user_id,total_amount,payment_id,order_status) values (:user_id,:total_amount,:payment_id,:order_status)';
+    $date = $this->getDate();
+    $sql = 'Insert into orders (user_id,total_amount,payment_id,order_status,created_at,payment_status) values (:user_id,:total_amount,:payment_id,:order_status,:created_at,:payment_status)';
     $this->prepare($sql);
     //bind rating 
     $this->bind(':user_id',$userId);
     $this->bind(':payment_id',$paymentId);
     $this->bind(':total_amount',$amount);
     $this->bind(':order_status','received');
+    $this->bind(':created_at',$date);
+    $this->bind(':payment_status','Paid');
     $this->execute();
 
     return $this->lastInsertedId();
@@ -423,11 +439,12 @@ public function storePaymentDetails($userId,$paymentId,$amount){
 }
 
 public function storeOrderDetails($userId,$orderId){
-    $carts = $this->getCartByUser($userId);   
+    $carts = $this->getCartByUser($userId);  
+    $date = $this->getDate(); 
 
     foreach($carts as $cart){
-      $sql = 'Insert into order_details (order_id,user_id,product_id,product_price,product_name,product_image,quantity) 
-              values (:order_id,:user_id,:product_id,:product_price,:product_name,:product_image,:quantity)';
+      $sql = 'Insert into order_details (order_id,user_id,product_id,product_price,product_name,product_image,quantity,created_at) 
+              values (:order_id,:user_id,:product_id,:product_price,:product_name,:product_image,:quantity,:created_at)';
       $this->prepare($sql);
       //bind order details 
       $this->bind(':order_id',$orderId);
@@ -437,11 +454,12 @@ public function storeOrderDetails($userId,$orderId){
       $this->bind(':product_name',$cart->product_name);
       $this->bind(':product_image',$cart->product_image);
       $this->bind(':quantity',$cart->quantity);
+      $this->bind(':created_at',$date);
       $this->execute();
     }
 
     //Delete Cart Details
-      $sql = 'DELETE FROM `cart` WHERE user_id=:user_id';
+      $sql = 'DELETE FROM `carts` WHERE user_id=:user_id';
       $this->prepare($sql);
       //bind user ID
       $this->bind(':user_id',$userId);
