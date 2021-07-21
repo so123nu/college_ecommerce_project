@@ -43,7 +43,7 @@ class Database{
     
    public function execute(){
      //execute Query
-     $this->stmt->execute();
+     return $this->stmt->execute();
     
    }
 
@@ -186,21 +186,6 @@ public function sellerDetails($email){
   $result = $this->fetchSingle();
   //return user details
   return $result;
-}
-
-
-public function fetchCategory(){
-    //sql query to select user using email
-    $sql = 'SELECT * FROM  categories';
-    //prepare query
-    $this->prepare($sql);
-    //execute query
-    $this->execute();
-    //fetch single user record
-    $result = $this->fetchMultiple();
-    //return user details
-    return $result;
-
 }
 
 
@@ -468,8 +453,299 @@ public function storeOrderDetails($userId,$orderId){
  
 }
 
+public function saveContact($name,$email,$subject,$company,$message){
+  $date = $this->getDate();
+
+  $sql = 'Insert into contacts (name,email,subject,company,message,created_at) 
+  values (:name,:email,:subject,:company,:message,:created_at)';
+$this->prepare($sql);
+//bind order details 
+$this->bind(':name',$name);
+$this->bind(':email',$email);
+$this->bind(':subject',$subject);
+$this->bind(':company',$company);
+$this->bind(':message',$message);
+$this->bind(':created_at',$date);
+$this->execute();
+}
+
+// ///////////////////////////////////////////////// ABHIBADAN CODE /////////////////////////////////////
+
+public function uploadProductTable($id,$name,$company,$category,$detail,$price,$stock,$image){
+  $sql = "INSERT INTO `products`(`sellerID`,`Pname`,`Pcompany`,`category_ID`,`Pdetails`, `price`,`stock`,`image`) VALUES (:s,:pn,:pc,:c,:pd,:pr,:ps,:im)";
+  $this->prepare($sql);
+  $this->bind(':s',$id);
+  $this->bind(':pn',$name);
+  $this->bind(':pc',$company);
+  $this->bind(':c',$category);
+  $this->bind(':pd',$detail);
+  $this->bind(':pr',$price);
+  $this->bind(':ps',$stock);
+  $this->bind(':im',$image);
+  //execute query
+  if($this->execute())
+  {
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+//ABHI
+//find lastinsert id,used for updating product image table
+  public function findProductID(){
+    $sql="SELECT MAX(`productID`) AS PMAX FROM `products`";
+    $this->prepare($sql);
+    $this->execute();
+    $q=$this->fetchSingle();
+    $p=(int)$q->PMAX;
+    return $p; 
+}
+//ABHI
+public function findcategory($category){
+  $sql="SELECT `category_ID` FROM `categories` WHERE `categories`=:c";
+    $this->prepare($sql);
+    $this->bind(':c',$category);
+    $this->execute();
+    $q=$this->fetchSingle();
+    //$p=(int)$q->category_ID;
+    print_r($q);
+    return $q;
+}
+//ABHI
+public function fetchCategory(){
+    //sql query to select user using email
+    $sql = 'SELECT * FROM  categories';
+    //prepare query
+    $this->prepare($sql);
+    //execute query
+    $this->execute();
+    //fetch single user record
+    $result = $this->fetchMultiple();
+    //return user details
+    return $result;
+
+}
+//NEED DATE ABHI
+//insert product image
+public function uploadImageTable($id,$image){
+
+  $date = $this->getDate();
+  //insert product image for given product id
+  $sql2="INSERT INTO `product_images`(`productID`, `image`,`created_at`) VALUES (:p,:pim,:created_at)";
+  $this->prepare($sql2);
+  $this->bind(':p',$id);
+  $this->bind(':pim',$image);
+  $this->bind(':created_at',$date);
+  if($this->execute())
+  {
+    echo"ok";
+  }
+}
+
+
+
+
+
+//ABHI
+//seller database
+public function sellerData($id){
+  // $sql="SELECT p.Pname,p.Pcompany,c.category,p.stock-p.sold AS 'remain' FROM `products` AS p,categories AS c WHERE p.category_ID=c.category_ID AND p.sellerID= :i";
+  $sql="Select * From products join product_images on products.productID = product_images.productID  Where sellerId=:id";
+  $this->prepare($sql);
+  $this->bind(':id',$id);
+  $this->execute();
+  $q=$this->fetchMultiple();
+  return $q; 
+}
+//ABHI
+//sellect all of user profile for given user id
+public function usersearch($userID)
+{
+  $sql="SELECT * FROM `users` WHERE `id`=:ui";
+  $this->prepare($sql);
+  $this->bind(':ui',$userID);
+  $this->execute();
+  $p=$this->fetchSingle();
+  return $p;
+}
+//ABHI
+//select all of seller profile for given seller id
+public function sellerprofile($id){
+  $seller="SELECT * FROM `sellers` WHERE `id`=:i";
+  $this->prepare($seller);
+  $this->bind(':i',$id);
+  $this->execute();
+  $q=$this->fetchSingle();
+  return $q; 
+}
+//ABHI
+//details of seller bank for given id
+public function sellerbankdetails($id){
+  $q="SELECT * FROM seller_banks WHERE sellerID=:i";
+  $this->prepare($q);
+  $this->bind(':i',$id);
+  $this->execute();
+  $q=$this->fetchSingle();
+  return $q; 
+}
+//ABHI
+//details of user bank for given id
+public function userbankdetails($id){
+  $q="SELECT * FROM user_banks WHERE userID=:i";
+  $this->prepare($q);
+  $this->bind(':i',$id);
+  $this->execute();
+  $q=$this->fetchSingle();
+  return $q; 
+}
+//NEED DATE ABHI
+//update seller details for given seller id
+public function updateSeller($id,$name,$email,$flat,$building,$street,$area,$district,$state,$country,$PIN){
+  $sql = "UPDATE `sellers` SET `name`=:na,`email`=:uemail,`flat`=:flt,`building`=:b,`street`=:st,`area`=:ar,`district`=:dis,`state`=:stat,`country`=:con,`PINcode`=:pin WHERE `id`=:i";
+  $this->prepare($sql);
+  $this->bind(':i',$id);
+  $this->bind(':na',$name);
+  $this->bind(':uemail',$email);
+  $this->bind(':flt',$flat);
+  $this->bind(':b',$building);
+  $this->bind(':st',$street);
+  $this->bind(':ar',$area);
+  $this->bind(':dis',$district);
+  $this->bind(':stat',$state);
+  $this->bind(':con',$country);
+  $this->bind(':pin',$PIN);
+  //execute query
+  if($this->execute())
+  {
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+//NEED DATE ABHI
+//update user details for given user id
+public function updateUser($id,$name,$email,$flat,$building,$street,$area,$district,$state,$country,$PIN){
+  $sql = "UPDATE `users` SET `name`=:na,`email`=:uemail,`flat`=:flt,`building`=:b,`street`=:st,`area`=:ar,`district`=:dis,`state`=:stat,`country`=:con,`PINcode`=:pin WHERE `id`=:i";
+  $this->prepare($sql);
+  $this->bind(':i',$id);
+  $this->bind(':na',$name);
+  $this->bind(':uemail',$email);
+  $this->bind(':flt',$flat);
+  $this->bind(':b',$building);
+  $this->bind(':st',$street);
+  $this->bind(':ar',$area);
+  $this->bind(':dis',$district);
+  $this->bind(':stat',$state);
+  $this->bind(':con',$country);
+  $this->bind(':pin',$PIN);
+  //execute query
+  if($this->execute())
+  {
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+//NEED DATE ABHI
+//update seller bank details 
+public function updateSellerBank($id,$account_number,$IFCS,$CBIN){
+  $q="UPDATE seller_banks SET account_number=:ac,IFCScode=:ifcs,`CBINno`=:cbin WHERE sellerID=:i";
+  $this->prepare($q);
+  $this->bind(':i',$id);
+  $this->bind(':ac',$account_number);
+  $this->bind(':ifcs',$IFCS);
+  $this->bind(':cbin',$CBIN);
+  $this->execute();
+}
+//NEED DATE ABHI
+//update user bank details
+public function updateUserBank($id,$account_number,$IFCS,$CBIN){
+  $date = $this->getDate();
+  $q="UPDATE user_banks SET account_number=:ac,IFCScode=:ifcs,`CBINno`=:cbin , updated_at=:updated_at WHERE userID=:i";
+  $this->prepare($q);
+  $this->bind(':i',$id);
+  $this->bind(':ac',$account_number);
+  $this->bind(':ifcs',$IFCS);
+  $this->bind(':cbin',$CBIN);
+  $this->bind(':updated_at',$date);
+  $this->execute();
+}
+//NEED DATE ABHI UNDER IF
+ //register seller bank in profile page if not registered
+ public function registerSellerBank($id)
+ {
+  $date = $this->getDate();
+   //check registered or not
+   $sql1="SELECT `ID` FROM `seller_banks` WHERE `sellerID`=:id";
+   $this->prepare($sql1);
+   $this->bind(':id',$id);
+   $this->execute();
+   $q=$this->fetchSingle();
+   if(empty($q))
+   {
+     //register if not registered
+     $sql="INSERT INTO `seller_banks`(`sellerID`,created_at) VALUES (:s,:created_at)";
+   $this->prepare($sql);
+   $this->bind(':s',$id);
+   $this->bind(':created_at',$date);
+   $this->execute();
+   }
+   
+ }
+
+//NEED DATE ABHI UNDER IF
+ //register user bank in profile page if not registered
+ public function registerUserBank($id)
+ {
+  $date = $this->getDate();
+   //check registered or not
+   $sql1="SELECT `ID` FROM `user_banks` WHERE `userID`=:id";
+   $this->prepare($sql1);
+   $this->bind(':id',$id);
+   $this->execute();
+   $q=$this->fetchSingle();
+   if(empty($q))
+   {
+     //register if not registered
+      $sql="INSERT INTO `user_banks`(`userID`,created_at) VALUES (:s,:created_at)";
+      $this->prepare($sql);
+      $this->bind(':s',$id);
+      $this->bind(':created_at',$id);
+      $this->execute();
+   }
+   
+ }
+ //ABHI
+ //fetch user order list
+ public function userOrder($id,$orderid)
+ {
+   $sql="SELECT orders.id,order_details.product_name,order_details.product_price,order_details.quantity FROM order_details, orders WHERE orders.id=order_details.order_id AND orders.id=:o AND orders.user_id=:i";
+   $this->prepare($sql);
+   $this->bind(':i',$id);
+   $this->bind(':o',$orderid);
+   $this->execute();
+   $p=$this->fetchMultiple();
+   return $p;
+ }
+ //ABHI
+ //count order with same id
+ public function countOrder($id)
+ {
+   $sql="SELECT `id`,`total_amount`,`order_status` FROM `orders` WHERE `user_id`=:i";
+   $this->prepare($sql);
+   $this->bind(':i',$id);
+   $this->execute();
+   $q=$this->fetchMultiple();
+   return($q);
+ }
+
+ 
 
 
 }
+
 
 ?>

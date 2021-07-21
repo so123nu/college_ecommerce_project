@@ -27,7 +27,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
      }
 
      //login using modal
-     if(isset($_POST['email'])){
+     if(isset($_POST['email']) && isset($_POST['password'])){
      $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
      $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
 
@@ -53,6 +53,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
      }
 
      }
+
+     //contact
+     if(isset($_POST['contact']) && $_POST['contact'] == 'contact'){
+        $name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
+        $email = filter_var($_POST['email'],FILTER_SANITIZE_STRING);
+        $subject = filter_var($_POST['subject'],FILTER_SANITIZE_STRING);
+        $company = filter_var($_POST['company'],FILTER_SANITIZE_STRING);
+        $message = filter_var($_POST['message'],FILTER_SANITIZE_STRING);
+
+       //save details
+        $db->saveContact($name,$email,$subject,$company,$message);
+        $success_message = "ThankYou For Getting in Touch with Us.We will get Back to you shortly!";
+        
+    }
+     
 }
 
 ?>
@@ -151,7 +166,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                 <!-- / currency -->
                                 <!-- start cellphone -->
                                 <div class="cellphone hidden-xs">
-                                    <p><span class="fa fa-phone"></span>+91 7484858555</p>
+                                    <p><span class="fa fa-phone"></span>+91 7003465016 | +91 8777252070</p>
                                 </div>
                                 <!-- / cellphone -->
                             </div>
@@ -164,6 +179,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                     <?php endif; ?>
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
+                                    <?php endif; ?>
+                                    <?php if(!isset($_SESSION['email'])) : ?>
+                                    <li><a href="seller_register.php">Become A Seller</a></li>
                                     <?php endif; ?>
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
@@ -237,8 +255,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                             </span>
                                         </li>
                                     </ul>
+                                    <?php if(!isset($_SESSION['id'])): ?>
+                                    <a class="aa-cartbox-checkout aa-primary-btn"
+                                        href="http://localhost/college_ecom/public/account.php">Login</a>
+                                    <?php else: ?>
                                     <a class="aa-cartbox-checkout aa-primary-btn"
                                         href="http://localhost/college_ecom/public/checkout.php">Checkout</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <!-- / cart box -->
@@ -302,7 +325,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     <!-- catg header banner section -->
     <section id="aa-catg-head-banner">
-        <img src="img/fashion/fashion-header-bg-8.jpg" alt="fashion img">
+        <img src="img/contact_us.png" alt="fashion img" class="create_account_banner">
         <div class="aa-catg-head-banner-area">
             <div class="container">
                 <div class="aa-catg-head-banner-content">
@@ -327,45 +350,54 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi, quos.</p>
                         </div>
                         <!-- contact map -->
-                        <div class="aa-contact-map">
+                        <!-- <div class="aa-contact-map">
                             <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3902.3714257064535!2d-86.7550931378034!3d34.66757706940219!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8862656f8475892d%3A0xf3b1aee5313c9d4d!2sHuntsville%2C+AL+35813%2C+USA!5e0!3m2!1sen!2sbd!4v1445253385137"
                                 width="100%" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
-                        </div>
+                        </div> -->
+                        <div id="map" style="width:100%;height:400px;"></div>
                         <!-- Contact address -->
                         <div class="aa-contact-address">
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="aa-contact-address-left">
-                                        <form class="comments-form contact-form" action="">
+                                        <form class="comments-form contact-form" action="contact.php" method="POST">
+                                            <?php if(!empty($success_message)): ?>
+                                            <div class="alert alert-success"><?php echo $success_message; ?></div>
+                                            <?php endif; ?>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <input type="text" placeholder="Your Name" class="form-control">
+                                                        <input type="text" placeholder="Your Name" name="name"
+                                                            class="form-control">
+                                                        <input type="hidden" name="contact" value="contact">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <input type="email" placeholder="Email" class="form-control">
+                                                        <input type="email" name="email" placeholder="Email"
+                                                            class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <input type="text" placeholder="Subject" class="form-control">
+                                                        <input type="text" name="subject" placeholder="Subject"
+                                                            class="form-control">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
-                                                        <input type="text" placeholder="Company" class="form-control">
+                                                        <input type="text" name="company" placeholder="Company"
+                                                            class="form-control">
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="form-group">
-                                                <textarea class="form-control" rows="3"
-                                                    placeholder="Message"></textarea>
+                                                <textarea class="form-control" rows="3" placeholder="Message"
+                                                    name="message"></textarea>
                                             </div>
                                             <button class="aa-secondary-btn">Send</button>
                                         </form>
@@ -378,8 +410,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum modi
                                                 dolor facilis! Nihil error, eius.</p>
                                             <p><span class="fa fa-home"></span>Kolkata</p>
-                                            <p><span class="fa fa-phone"></span>+91 7484858555</p>
-                                            <p><span class="fa fa-envelope"></span>Email: support@dailyshop.com</p>
+                                            <p><span class="fa fa-phone"></span>+91 7003465016 | +91 8777252070</p>
+                                            <p><span class="fa fa-envelope"></span>Email: dailyshop@gmail.com</p>
                                         </address>
                                     </div>
                                 </div>
@@ -464,8 +496,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                         <div class="aa-footer-widget">
                                             <h3>Contact Us</h3>
                                             <address>
-                                                <p> 25 Astor Pl, NY 10003, USA</p>
-                                                <p><span class="fa fa-phone"></span>+1 212-982-4589</p>
+                                                <p>Kolkata</p>
+                                                <p><span class="fa fa-phone"></span>+91 7003465016 | +91 8777252070</p>
                                                 <p><span class="fa fa-envelope"></span>dailyshop@gmail.com</p>
                                             </address>
                                             <div class="aa-footer-social">
@@ -552,6 +584,34 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <script src="js/custom.js"></script>
     <script src="js/main.js"></script>
 
+
+
+    <script>
+    let map;
+
+    function initMap() {
+
+        var options = {
+            center: {
+                lat: 22.5822,
+                lng: 88.2345
+            },
+            zoom: 13,
+        }
+
+        map = new google.maps.Map(document.getElementById("map"), options);
+
+
+        map = new google.maps.Map(document.getElementById("map"), options);
+
+        const marker = new google.maps.Marker({
+            position: options.center,
+            map: map,
+        });
+    }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDoD94OmxmBcp89GtsxRFVz1ccBbSvhkfo&callback=initMap">
+    </script>
 
 </body>
 

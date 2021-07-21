@@ -235,7 +235,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                 <!-- / currency -->
                                 <!-- start cellphone -->
                                 <div class="cellphone hidden-xs">
-                                    <p><span class="fa fa-phone"></span>00-62-658-658</p>
+
+                                    <p><span class="fa fa-phone"></span>+91 7003465016 | +91 8777252070</p>
+                                    </p>
                                 </div>
                                 <!-- / cellphone -->
                             </div>
@@ -248,6 +250,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                     <?php endif; ?>
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
+                                    <?php endif; ?>
+                                    <?php if(!isset($_SESSION['email'])) : ?>
+                                    <li><a href="seller_register.php">Become A Seller</a></li>
                                     <?php endif; ?>
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
@@ -325,8 +330,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                             </span>
                                         </li>
                                     </ul>
+                                    <?php if(!isset($_SESSION['id'])): ?>
+                                    <a class="aa-cartbox-checkout aa-primary-btn"
+                                        href="http://localhost/college_ecom/public/account.php">Login</a>
+                                    <?php else: ?>
                                     <a class="aa-cartbox-checkout aa-primary-btn"
                                         href="http://localhost/college_ecom/public/checkout.php">Checkout</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <!-- / cart box -->
@@ -549,7 +559,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                             <h3>Contact Us</h3>
                                             <address>
                                                 <p> kolkata</p>
-                                                <p><span class="fa fa-phone"></span>+91 7484858555</p>
+                                                <p><span class="fa fa-phone"></span>+91 7003465016 | +91 8777252070</p>
                                                 <p><span class="fa fa-envelope"></span>dailyshop@gmail.com</p>
                                             </address>
                                             <div class="aa-footer-social">

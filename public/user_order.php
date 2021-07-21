@@ -1,52 +1,10 @@
 <?php
 session_start();
-
+ 
 require_once('../private/Database.php');
 $db=new Database();
-$category = $db->fetchCategory();
-if($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-    if(isset($_POST['upload']))
-    {
-    $fieldErr='';
-    $typeErr='';
-    $sellerID=$_SESSION['seller_id'];
-    $productName=filter_var($_POST['name'],FILTER_SANITIZE_STRING);
-    $productcategory=filter_var($_POST['category'],FILTER_SANITIZE_STRING);
-    $productCompany=filter_var($_POST['company'],FILTER_SANITIZE_STRING);
-    $productStock=filter_var($_POST['product_stock'],FILTER_SANITIZE_STRING);
-    $productDetail=filter_var($_POST['detail'],FILTER_SANITIZE_STRING);
-    $price=filter_var($_POST['price'],FILTER_SANITIZE_STRING);
-    $productImage=$_FILES['image']['name'][0];
-    $temp=$_FILES['image']['tmp_name'][0];
-    $lengthOfArray=sizeof($_FILES['image']);
-    if(empty($productName) || empty($productcategory) ||empty($productImage))
-    {
-        $fieldErr="Enter required field";
-    }
-    else
-    {
-        $category1=$db->findcategory($productcategory);
-        move_uploaded_file($temp,"photos/".$productImage);
-        if($db->uploadProductTable($sellerID,$productName,$productCompany,$productcategory,$productDetail,$price,$productStock,$productImage))
-        {
-            //find last insertion id
-            $productID=$db->findProductID();
-            //upload corresponding images
-            for($index=0;$index<$lengthOfArray;$index++)
-            {
-                @$productImage=$_FILES['image']['name'][$index];
-                @$temp=$_FILES['image']['tmp_name'][$index];
-                move_uploaded_file($temp,"photos/".$productImage);
-                $db->uploadImageTable($productID,$productImage);
-                header("refresh:0.1; url=upload.php");
-            }
-        }
-    }
-   }
-}
-
-
+$id=$_SESSION['id'];
+$findOrdersID=$db->countOrder($id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +13,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Daily Shop | Upload Product</title>
+    <title>Daily Shop | User Order</title>
 
     <!-- Font awesome -->
     <link href="css/font-awesome.css" rel="stylesheet">
@@ -196,7 +154,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
                                 <!-- img based logo -->
                                 <!-- <a href="index.php"><img src="img/logo.jpg" alt="logo img"></a> -->
                             </div>
-
+                            
                         </div>
                     </div>
                 </div>
@@ -205,8 +163,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
         <!-- / header bottom  -->
     </header>
     <!-- / header section -->
-    <!-- menu -->
-    <section id="menu">
+     <!-- menu -->
+     <section id="menu">
         <div class="container">
             <div class="menu-area">
                 <!-- Navbar -->
@@ -223,9 +181,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
                     <div class="navbar-collapse collapse">
                         <!-- Left nav -->
                         <ul class="nav navbar-nav">
-                            <li><a href="seller_profile.php">Your Profile</a></li>
-                            <li><a href="seller_database.php">Your Products</a></li>
-                            <li><a href="upload.php">Upload</a></li>
+                            <li><a href="index.php">Home</a></li>
+
+                            <li><a href="#">Sports</a></li>
+                            <li><a href="#">Digital <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Camera</a></li>
+                                    <li><a href="#">Mobile</a></li>
+                                    <li><a href="#">Tablet</a></li>
+                                    <li><a href="#">Laptop</a></li>
+                                    <li><a href="#">Accesories</a></li>
+                                </ul>
+                            </li>
+
+
+                            <li><a href="contact.php">Contact</a></li>
 
                         </ul>
                     </div>
@@ -233,71 +203,72 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
                 </div>
             </div>
         </div>
-        </div>
-    </section>
-    <!-- / menu -->
+    </section>        
     <!-- Cart view section -->
-    <section id="aa-myaccount">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="aa-myaccount-area">
-                        <div class="row justify-content-center">
-                            <div class="col-md-3"></div>
-                            <div class="col-md-6">
-                                <div class="aa-myaccount-register">
-                                    <h4 class="text-center">Upload Product</h4>
-                                    <form action="upload.php" method="POST" class="aa-login-form"
-                                        enctype="multipart/form-data">
-                                        <div class="form-group">
-                                            <label for="">Product Name<span>*</span></label>
-                                            <input type="text" required name="name"
-                                                class="<?php if(!empty($fieldErr)) { echo "<span>*".$fieldErr."</span>";} ?>">
-                                            <label>product category<span>*</span></label>
-                                            <select name="category">
-                                                <option value="">--select--</option>
-                                                <?php echo $category_array['category'];?>
-                                                <?php foreach($category as $cate):?>
-                                                <option value="<?php echo $cate->category_ID;?>">
-                                                    <?php echo $cate->category;?></option>
-                                                <?php endforeach;?>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="">Product Company Name</label>
-                                            <input type="text" required name="company" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>enter stock</label>
-                                            <input type="number" name="product_stock" autocomplete="off" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>choose your file<span>*</span></label>
-                                            <input type="file" name="image[]" value="" required multiple="multiple">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>enter details</label>
-                                            <input type="text" name="detail" autocomplete="off" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>enter price<span>*</span></label>
-                                            <input type="number" name="price" autocomplete="off" required><br>
-                                        </div>
-                                        <div class="text-center">
-                                            <input type="submit" name="upload" value="UPLOAD"
-                                                style="background-color:#ee4532;border:0px;color:#fff;height:50px;width:130px">
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<section id="cart-view">
+   <div class="container">
+     <div class="row">
+       <div class="col-md-12">
+       
+         <div class="cart-view-area">
+         <h2 class="text-center">Order Details</h2>
+           <div class="cart-view-table">
+             <!--<form action="">-->
+               <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                        <tr>
+                            <th>order id</th>
+                            <th>Product</th>
+                            <th>Product price</th>
+                            <th>Quantity</th>
+                            <th>Total Amount</th>
+                            <th>Order Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach($findOrdersID as $record):?>
+                        <tr>
+                            <?php $userOrderTable=$db->userOrder($id,$record->id);?>
+                            <td rowspan="<?php echo(sizeof($userOrderTable));?>"><strong><?php echo($record->id);?></strong></td>
+                            <td><?php echo $userOrderTable[0]->product_name;?></td>
+                            <td><strong>&#8377;<?php echo $userOrderTable[0]->product_price;?></strong></td>
+                            <td><strong><?php echo $userOrderTable[0]->quantity;?></strong></td>
+                            <td rowspan="<?php echo(sizeof($userOrderTable));?>"><strong>&#8377;<?php echo($record->total_amount);?></strong></td>
+                            <?php if($record->order_status=="received"):?>
+                                <td rowspan="<?php echo(sizeof($userOrderTable));?>"><button type="button" style="background-color:orange;color:white;padding:2px;border: none;"><?php echo"Processing";?></button></td>
+                            <?php elseif($record->order_status=="accepted"):?>
+                                <td rowspan="<?php echo(sizeof($userOrderTable));?>"><button type="button" style="background-color=green;color:white;padding:2px;border: none;"><?php echo"Shipped";?></button></td>
+                            <?php elseif($record->order_status=="completed"):?>
+                                <td rowspan="<?php echo(sizeof($userOrderTable));?>"><button type="button" style="background-color=green;color:white;padding:2px;border: none;"><?php echo"Delivered";?></button></td>
+                            <?php elseif($record->order_status=="failed"):?>
+                                <td rowspan="<?php echo(sizeof($userOrderTable));?>"><button type="button" style="background-color=green;color:white;padding:2px;border: none;"><?php echo"failed";?></button></td>
+                            <?php elseif($record->order_status=="refund"):?>
+                                <td rowspan="<?php echo(sizeof($userOrderTable));?>"><button type="button" style="background-color=green;color:white;padding:2px;border: none;"><?php echo"refund";?></button></td>
+                            <?php endif;?>
+                            
+                        </tr>
+                        
+                            <?php if(sizeof($userOrderTable)>1):?>
+                            <?php for($index=1;$index<sizeof($userOrderTable);$index++):?>
+                            <tr>
+                                <td><?php echo $userOrderTable[$index]->product_name;?></td>
+                                <td><strong>&#8377;<?php echo $userOrderTable[$index]->product_price;?></strong></td>
+                                <td><strong><?php echo $userOrderTable[$index]->quantity;?></strong></td>
+                            
+                            </tr>
+                            <?php endfor;?>
+                            <?php endif;?>
+                      </tbody>
+                      <?php endforeach;?>
+                  </table>
                 </div>
-            </div>
-        </div>
-    </section>
-    <!-- / Cart view section -->
-
+             <!--</form>-->
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
     <!-- footer -->
     <footer id="aa-footer">
         <!-- footer bottom -->
