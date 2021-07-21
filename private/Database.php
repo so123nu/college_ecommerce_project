@@ -551,7 +551,7 @@ public function uploadImageTable($id,$image){
 //seller database
 public function sellerData($id){
   // $sql="SELECT p.Pname,p.Pcompany,c.category,p.stock-p.sold AS 'remain' FROM `products` AS p,categories AS c WHERE p.category_ID=c.category_ID AND p.sellerID= :i";
-  $sql="Select * From products join product_images on products.productID = product_images.productID  Where sellerId=:id";
+  $sql="Select * From products Where sellerId=:id";
   $this->prepare($sql);
   $this->bind(':id',$id);
   $this->execute();

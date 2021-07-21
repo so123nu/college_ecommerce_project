@@ -347,7 +347,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                     <div class="aa-contact-area">
                         <div class="aa-contact-top">
                             <h2>We are wating to assist you..</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi, quos.</p>
+                            <p>24/7 support means customers can get help and find answers to questions as soon as they
+                                come up—24/7 and in real-time. </p>
                         </div>
                         <!-- contact map -->
                         <!-- <div class="aa-contact-map">

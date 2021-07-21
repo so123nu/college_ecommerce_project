@@ -208,7 +208,7 @@ $sellertable=$db->sellerData($id);
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>category</th>
+                                            <th>Product Image</th>
                                             <th>Product Name</th>
                                             <th>Company</th>
                                             <th>Stock</th>

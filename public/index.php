@@ -344,7 +344,8 @@ $response = new Response;
                                 <span data-seq>Save Up to 75% Off</span>
                                 <!-- <h2 data-seq>Men Collection</h2> -->
                                 <p data-seq>Premium Laptops.Hurry!</p>
-                                <a data-seq href="#" class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
+                                <a data-seq href="http://localhost/college_ecom/public/product.php?id=2"
+                                    class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
                             </div>
                         </li>
                         <!-- single slide item -->
@@ -356,7 +357,8 @@ $response = new Response;
                                 <span data-seq>Save Up to 40% Off</span>
                                 <!-- <h2 data-seq>Wristwatch Collection</h2> -->
                                 <p data-seq>Premium Mobiles.Hurry!</p>
-                                <a data-seq href="#" class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
+                                <a data-seq href="http://localhost/college_ecom/public/product.php?id=2"
+                                    class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
                             </div>
                         </li>
                         <!-- single slide item -->
@@ -368,7 +370,8 @@ $response = new Response;
                                 <span data-seq>Save Up to 75% Off</span>
                                 <!-- <h2 data-seq>Jeans Collection</h2> -->
                                 <p data-seq>Premium Headphones.Hurry!</p>
-                                <a data-seq href="#" class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
+                                <a data-seq href="http://localhost/college_ecom/public/product.php?id=2"
+                                    class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
                             </div>
                         </li>
                         <!-- single slide item -->
@@ -380,7 +383,8 @@ $response = new Response;
                                 <span data-seq>Save Up to 75% Off</span>
                                 <!-- <h2 data-seq>Exclusive Shoes</h2> -->
                                 <p data-seq>Premium Sports Wear.Hurry!</p>
-                                <a data-seq href="#" class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
+                                <a data-seq href="http://localhost/college_ecom/public/product.php?id=1"
+                                    class="aa-shop-now-btn aa-secondary-btn">SHOP NOW</a>
                             </div>
                         </li>
                         <!-- single slide item -->
@@ -463,8 +467,9 @@ $response = new Response;
                                             <?php endforeach; ?>
                                             <?php endif; ?>
                                         </ul>
-                                        <a class="aa-browse-btn" href="#">Browse all Product <span
-                                                class="fa fa-long-arrow-right"></span></a>
+                                        <a class="aa-browse-btn"
+                                            href="http://localhost/college_ecom/public/product.php?id=1">Browse all
+                                            Product <span class="fa fa-long-arrow-right"></span></a>
                                     </div>
                                     <!-- / sports category -->
 
@@ -507,8 +512,9 @@ $response = new Response;
                                             <?php endif; ?>
 
                                         </ul>
-                                        <a class="aa-browse-btn" href="#">Browse all Product <span
-                                                class="fa fa-long-arrow-right"></span></a>
+                                        <a class="aa-browse-btn"
+                                            href="http://localhost/college_ecom/public/product.php?id=2">Browse all
+                                            Product <span class="fa fa-long-arrow-right"></span></a>
                                     </div>
                                     <!-- / electronic product category -->
 
@@ -616,19 +622,7 @@ $response = new Response;
     </section>
     <!-- / Products section -->
     <!-- banner section -->
-    <section id="aa-banner">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="aa-banner-area">
-                            <a href="#"><img src="img/fashion-banner.jpg" alt="fashion banner img"></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+
     <!-- popular section -->
     <section id="aa-popular-category">
         <div class="container">
@@ -685,8 +679,9 @@ $response = new Response;
 
 
                                     </ul>
-                                    <a class="aa-browse-btn" href="#">Browse all Product <span
-                                            class="fa fa-long-arrow-right"></span></a>
+                                    <a class="aa-browse-btn"
+                                        href="http://localhost/college_ecom/public/product.php?id=3">Browse all Product
+                                        <span class="fa fa-long-arrow-right"></span></a>
                                 </div>
                                 <!-- / featured product category -->
 
@@ -746,15 +741,11 @@ $response = new Response;
                             <!-- single slide -->
                             <li>
                                 <div class="aa-testimonial-single">
-                                    <img class="aa-testimonial-img" src="img/testimonial-img-2.jpg"
-                                        alt="testimonial img">
+                                    <img class="aa-testimonial-img" src="img/women/test1.jpg" alt="testimonial img">
                                     <span class="fa fa-quote-left aa-testimonial-quote"></span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt distinctio omnis
-                                        possimus, facere,
-                                        quidem qui!consectetur adipisicing elit. Sunt distinctio omnis possimus, facere,
-                                        quidem qui.</p>
+                                    <p>Brilliant Website.Had a Teriffic Shopping Experience! </p>
                                     <div class="aa-testimonial-info">
-                                        <p>Allison</p>
+                                        <p>Shwetlana Gupta</p>
                                         <span>Designer</span>
                                         <a href="#">Dribble.com</a>
                                     </div>
@@ -763,30 +754,22 @@ $response = new Response;
                             <!-- single slide -->
                             <li>
                                 <div class="aa-testimonial-single">
-                                    <img class="aa-testimonial-img" src="img/testimonial-img-1.jpg"
-                                        alt="testimonial img">
+                                    <img class="aa-testimonial-img" src="img/women/test3.jpg" alt="testimonial img">
                                     <span class="fa fa-quote-left aa-testimonial-quote"></span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt distinctio omnis
-                                        possimus, facere,
-                                        quidem qui!consectetur adipisicing elit. Sunt distinctio omnis possimus, facere,
-                                        quidem qui.</p>
+                                    <p>Awesowe Deals.Valueable Products for Reasonable price!</p>
                                     <div class="aa-testimonial-info">
                                         <p>KEVIN MEYER</p>
-                                        <span>CEO</span>
-                                        <a href="#">Alphabet</a>
+                                        <span>Broker</span>
+                                        <a href="#">Shah Properties!</a>
                                     </div>
                                 </div>
                             </li>
                             <!-- single slide -->
                             <li>
                                 <div class="aa-testimonial-single">
-                                    <img class="aa-testimonial-img" src="img/testimonial-img-3.jpg"
-                                        alt="testimonial img">
+                                    <img class="aa-testimonial-img" src="img/women/test2.jpg" alt="testimonial img">
                                     <span class="fa fa-quote-left aa-testimonial-quote"></span>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt distinctio omnis
-                                        possimus, facere,
-                                        quidem qui!consectetur adipisicing elit. Sunt distinctio omnis possimus, facere,
-                                        quidem qui.</p>
+                                    <p>Love The wide range of gadgets and support service after Product Delivery!.</p>
                                     <div class="aa-testimonial-info">
                                         <p>Luner</p>
                                         <span>COO</span>
