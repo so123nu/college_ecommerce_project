@@ -156,6 +156,27 @@ class Database{
     }
  }
 
+
+ //Check if user is active or not
+public function checkUserActive($email){
+    //sql query to select user using email
+    $sql = 'SELECT * FROM  users WHERE email=:email';
+    //prepare query
+    $this->prepare($sql);
+      //bind email value to :email
+    $this->bind(':email',$email);
+    //execute query
+    $this->execute();
+    //fetch single user record
+    $result = $this->fetchSingle();
+    //return user details
+     if($result->is_active == 0){
+       return true;
+     }else{
+       return false;
+     }
+}
+
  //Get User Details
  public function userDetails($email){
     //sql query to select user using email
@@ -192,8 +213,10 @@ public function sellerDetails($email){
 public function getSportsProduct(){
 
   //sql query to select user sports products
+  // $sql = 'SELECT * FROM `products` join categories on products.category_ID = categories.category_ID
+  // Where category = "Sports"';
   $sql = 'SELECT * FROM `products` join categories on products.category_ID = categories.category_ID
-  Where category = "Sports"';
+   join ratings on ratings.pID = products.productID   Where category = "Sports"';
   //prepare query
   $this->prepare($sql);
   //execute query
@@ -209,7 +232,7 @@ public function getElectronicsProduct(){
 
   //sql query to select user sports products
   $sql = 'SELECT * FROM `products` join categories on products.category_ID = categories.category_ID
-  Where category = "Electronics"';
+  join ratings on ratings.pID = products.productID Where category = "Electronics"';
   //prepare query
   $this->prepare($sql);
   //execute query
@@ -311,7 +334,7 @@ public function deleteCartItem($id){
 //featured products
 public function featuredProducts(){
   //sql query to select user sports products
-  $sql = 'SELECT * FROM `products` p JOIN ratings r on p.productID = r.pID WHERE r.rating > :rating';
+  $sql = 'SELECT * FROM `products` p JOIN ratings r on p.productID = r.pID  WHERE r.rating > :rating';
   //prepare query
   $this->prepare($sql);
   //bind rating 
@@ -467,6 +490,42 @@ $this->bind(':company',$company);
 $this->bind(':message',$message);
 $this->bind(':created_at',$date);
 $this->execute();
+}
+
+public function getProductsByPrice($lowerLimit,$upperLimit){
+    $sql = 'Select * FROM `products` WHERE price BETWEEN :lowerLimit AND :upperLimit ORDER BY price';
+   
+    $this->prepare($sql);
+    //bind user ID
+    $this->bind(':lowerLimit',$lowerLimit);
+    $this->bind(':upperLimit',$upperLimit);
+    $this->execute();
+     //fetch products 
+    $result = $this->fetchMultiple();
+    //return filtereed products
+    return $result;
+}
+
+public function addShippingDetails($data,$userId){
+  $sql = 'Insert Into shipping_addresses (user_id , first_name , last_name , company_name , email ,mobile , address ,country , apartment , town ,district , pincode) values  (:user_id , :first_name , :last_name , :company_name , :email , :mobile , :address , :country , :apartment , :town , :district , :pincode)';
+   
+  $this->prepare($sql);
+  //bind user ID
+  $this->bind(':user_id',$userId);
+  $this->bind(':first_name',$data['firstName']);
+  $this->bind(':last_name',$data['lastName']);
+  $this->bind(':company_name',$data['companyName']);
+  $this->bind(':email',$data['email']);
+  $this->bind(':mobile',$data['mobile']);
+  $this->bind(':address',$data['address']);
+  $this->bind(':country',$data['country']);
+  $this->bind(':apartment',$data['apartment']);
+  $this->bind(':town',$data['town']);
+  $this->bind(':district',$data['district']);
+  $this->bind(':pincode',$data['pincode']);
+
+  $this->execute();
+  return true;
 }
 
 // ///////////////////////////////////////////////// ABHIBADAN CODE /////////////////////////////////////

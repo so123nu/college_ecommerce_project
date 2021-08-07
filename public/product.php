@@ -4,8 +4,9 @@ session_start();
 require_once('../private/Database.php');
 $db = new Database();
 
-
+if($_SERVER['REQUEST_METHOD'] == 'GET'){
 $id = $_GET['id'];
+$_SESSION['product_page_id'] = $id;
 if(isset($id) && $id == 1){
    $products = $db->getSportsProduct();
    
@@ -14,9 +15,21 @@ if(isset($id) && $id == 1){
 }else if (isset($id) && $id == 3){
   $products = $db->featuredProducts();
 }
+}
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
+    
+if(isset($_POST['filter_price'])){
+
+    $lowerLimit = $_POST['lower_limit'];
+    $lowerLimit = $_POST['upper_limit'];
+    return $lowerLimit;
+    exit;
+    
+}
+
+   
   if(isset($_POST['signup']) && $_POST['signup'] == 'signup'){
  
      
@@ -99,7 +112,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
       $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
       $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
 
-
+      if($db->checkUserActive($email)){
+        $response->error("Your Account Has Been Temporarily Suspended!Please Contact Admin.");
+        exit;
+    }
 
       if($db->validateUserEmail($email)){
           $userDetails = $db->userDetails($email);
@@ -169,11 +185,15 @@ foreach($carts as $cart){
 
     <!-- Main style sheet -->
     <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
 
     <!-- Google Font -->
     <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
 
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -246,8 +266,8 @@ foreach($carts as $cart){
                             <div class="aa-header-top-right">
                                 <ul class="aa-head-top-nav-right">
                                     <?php if(isset($_SESSION['email'])) : ?>
-                                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-                                    <li><a href="account.php"><?php echo $_SESSION['name']; ?></a></li>
+                                    <li><i class="fa fa-user" aria-hidden="true"></i> <a
+                                            href="user_profile.php"><?php echo $_SESSION['name']; ?></a></li>
                                     <?php endif; ?>
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
@@ -258,6 +278,9 @@ foreach($carts as $cart){
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <li><a href="user_order.php">My Orders</a></li>
+                                    <?php endif; ?>
                                     <?php if(isset($_SESSION['name'])): ?>
                                     <li><a href="" data-toggle="modal" data-target="#login-modal">Logout</a></li>
                                     <?php endif; ?>
@@ -460,6 +483,9 @@ foreach($carts as $cart){
                                         <figcaption class="product_detail_sports">
                                             <h4 class="aa-product-title"><a href="#"><?php echo $product->Pname; ?></a>
                                             </h4>
+                                            <h6 class="text-danger"><i class="far fa-star"></i>
+                                                <?php echo $product->rating; ?>
+                                            </h6>
                                             <span
                                                 class="aa-product-price"><?php echo '&#x20b9;' . $product->price; ?></span>
                                         </figcaption>
@@ -628,13 +654,14 @@ foreach($carts as $cart){
                             <h3>Shop By Price</h3>
                             <!-- price range -->
                             <div class="aa-sidebar-price-range">
-                                <form action="">
-                                    <div id="skipstep" class="noUi-target noUi-ltr noUi-horizontal noUi-background">
-                                    </div>
-                                    <span id="skip-value-lower" class="example-val">30.00</span>
-                                    <span id="skip-value-upper" class="example-val">100.00</span>
-                                    <button class="aa-filter-btn" type="submit">Filter</button>
-                                </form>
+
+                                <div id="skipstep" class="noUi-target noUi-ltr noUi-horizontal noUi-background">
+                                </div>
+                                <span id="skip-value-lower" class="example-val" name="price_low">1000.00</span>
+                                <span id="skip-value-upper" class="example-val" name="price_high">100000.00</span>
+                                <input type="hidden" name="filter_price" value="filter_price">
+                                <button class="aa-filter-btn" id="filter_price">Filter</button>
+
                             </div>
 
                         </div>
@@ -779,7 +806,7 @@ foreach($carts as $cart){
                 <div class="row">
                     <div class="col-md-12">
                         <div class="aa-footer-bottom-area">
-                            <p>Designed by <a href="http://www.markups.io/">MarkUps.io</a></p>
+                            <p>Designed by <a href="index.php">Daily Shop</a></p>
                             <div class="aa-footer-payment">
                                 <span class="fa fa-cc-mastercard"></span>
                                 <span class="fa fa-cc-visa"></span>
@@ -843,6 +870,34 @@ foreach($carts as $cart){
     <script type="text/javascript" src="js/nouislider.js"></script>
     <!-- Custom js -->
     <script src="js/custom.js"></script>
+    <script>
+    $(document).ready(() => {
+        $('#filter_price').click(() => {
+
+            let lowerLimit = $('#skip-value-lower').html()
+            let upperLimit = $('#skip-value-upper').html()
+
+            $.ajax({
+                url: "test.php",
+                data: {
+                    key: "filter_price",
+                    lower_limit: lowerLimit,
+                    upper_limit: upperLimit
+                },
+                method: "POST",
+                success: function(event) {
+                    let data = JSON.parse(event)
+                    $('.aa-product-catg').html(JSON.parse(data.data))
+
+                },
+                error: function(response) {
+
+                }
+            });
+
+        })
+    })
+    </script>
 
 
 </body>

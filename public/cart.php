@@ -49,7 +49,10 @@ if(empty($_SESSION['email'])){
         $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
         $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
 
-
+        if($db->checkUserActive($email)){
+            $response->error("Your Account Has Been Temporarily Suspended!Please Contact Admin.");
+            exit;
+        }
 
         if($db->validateUserEmail($email)){
             $userDetails = $db->userDetails($email);
@@ -141,6 +144,8 @@ if(empty($_SESSION['email'])){
 
     <!-- Main style sheet -->
     <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
 
     <!-- Google Font -->
     <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
@@ -216,8 +221,8 @@ if(empty($_SESSION['email'])){
                             <div class="aa-header-top-right">
                                 <ul class="aa-head-top-nav-right">
                                     <?php if(isset($_SESSION['email'])) : ?>
-                                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-                                    <li><a href="account.php"><?php echo $_SESSION['name']; ?></a></li>
+                                    <li><i class="fa fa-user" aria-hidden="true"></i> <a
+                                            href="user_profile.php"><?php echo $_SESSION['name']; ?></a></li>
                                     <?php endif; ?>
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
@@ -228,6 +233,9 @@ if(empty($_SESSION['email'])){
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <li><a href="user_order.php">My Orders</a></li>
+                                    <?php endif; ?>
                                     <?php if(isset($_SESSION['email'])) : ?>
                                     <li>
                                         <form action="index.php" method="POST">

@@ -31,7 +31,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
      $email =  filter_var($_POST['email'],FILTER_SANITIZE_EMAIL);
      $password = filter_var($_POST['password'],FILTER_SANITIZE_STRING);
 
-
+     if($db->checkUserActive($email)){
+        $response->error("Your Account Has Been Temporarily Suspended!Please Contact Admin.");
+        exit;
+    }
 
      if($db->validateUserEmail($email)){
          $userDetails = $db->userDetails($email);
@@ -54,6 +57,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
      }
 
+     //apply coupon
      if(isset($_POST['coupon']) && $_POST['coupon'] == 'apply_coupon'){
         $couponCode = filter_var($_POST['couponcode'],FILTER_SANITIZE_STRING);
          
@@ -62,6 +66,43 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(gettype($couponMessage) == 'integer'){
             $cartTotal = $couponMessage;
         }
+
+     }
+
+     //add shipping address shipping_details
+     if(isset($_POST['shipping_details']) && $_POST['shipping_details'] == 'add_shipping_details'){
+        
+        $firstName = filter_var($_POST['fname'],FILTER_SANITIZE_STRING);
+        $lastName = filter_var($_POST['lname'],FILTER_SANITIZE_STRING);
+        $companyName = filter_var($_POST['company_name'],FILTER_SANITIZE_STRING);
+        $email = filter_var($_POST['shipping_email'],FILTER_SANITIZE_EMAIL);
+        $mobile = filter_var($_POST['mobile'],FILTER_SANITIZE_NUMBER_INT);
+        $address = filter_var($_POST['address'],FILTER_SANITIZE_STRING);
+        $country = filter_var($_POST['country'],FILTER_SANITIZE_STRING);
+        $apartment = filter_var($_POST['apartment'],FILTER_SANITIZE_STRING);
+        $town = filter_var($_POST['town'],FILTER_SANITIZE_STRING);
+        $district = filter_var($_POST['district'],FILTER_SANITIZE_STRING);
+        $pincode = filter_var($_POST['pincode'],FILTER_SANITIZE_STRING);
+
+        $data = [
+            "firstName" => $firstName,
+            "lastName" => $lastName,
+            "companyName" => $companyName,
+            "email" => $email,
+            "mobile" => $mobile,
+            "address" => $address,
+            "country" => $country,
+            "apartment" => $apartment,
+            "town" => $town,
+            "district" => $district,
+            "pincode" => $pincode,
+        ];
+
+     
+
+       if($db->addShippingDetails($data,$_SESSION['id'])){
+           $success_message = "success";
+       }
 
      }
 }
@@ -97,6 +138,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <!-- Main style sheet -->
     <link href="css/style.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
     <!-- Google Font -->
     <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
@@ -170,8 +213,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                             <div class="aa-header-top-right">
                                 <ul class="aa-head-top-nav-right">
                                     <?php if(isset($_SESSION['email'])) : ?>
-                                    <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-                                    <li><a href="account.php"><?php echo $_SESSION['name']; ?></a></li>
+                                    <li><i class="fa fa-user" aria-hidden="true"></i> <a
+                                            href="user_profile.php"><?php echo $_SESSION['name']; ?></a></li>
                                     <?php endif; ?>
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="account.php">My Account</a></li>
@@ -182,6 +225,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                     <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
+                                    <?php if(isset($_SESSION['email'])) : ?>
+                                    <li><a href="user_order.php">My Orders</a></li>
+                                    <?php endif; ?>
                                     <?php if(isset($_SESSION['email'])) : ?>
                                     <li>
                                         <form action="index.php" method="POST">
@@ -383,217 +429,114 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                             </div>
                                         </div>
 
-                                        <!-- Billing Details -->
-                                        <div class="panel panel-default aa-checkout-billaddress">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion"
-                                                        href="#collapseThree">
-                                                        Billing Details
-                                                    </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapseThree" class="panel-collapse collapse">
-                                                <div class="panel-body">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="First Name*">
+
+                                        <?php if(isset($success_message)): ?>
+                                        <div class="alert alert-success"><strong>Success!</strong> Shipping Details
+                                            Added Successfully!</div>
+                                        <?php endif; ?>
+                                        <form action="checkout.php" method="POST">
+                                            <div class="panel panel-default aa-checkout-billaddress">
+                                                <div class="panel-heading">
+                                                    <h4 class="panel-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion"
+                                                            href="#collapseFour">
+                                                            Shippping Address
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseFour" class="panel-collapse collapse">
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text" placeholder="First Name*"
+                                                                        name="fname">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text" placeholder="Last Name*"
+                                                                        name="lname">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Last Name*">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text" placeholder="Company name"
+                                                                        name="company_name">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Company name">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="email" placeholder="Email Address*"
+                                                                        name="shipping_email">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="tel" placeholder="Phone*"
+                                                                        name="mobile">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="email" placeholder="Email Address*">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <textarea cols="8" rows="3"
+                                                                        name="address">Address*</textarea>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="tel" placeholder="Phone*">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <select name="country">
+                                                                        <option value="">Select Your Country</option>
+                                                                        <option value="India">India</option>
+                                                                    </select>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <textarea cols="8" rows="3">Address*</textarea>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text"
+                                                                        placeholder="Appartment, Suite etc."
+                                                                        name="apartment">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text" placeholder="City / Town*"
+                                                                        name="town">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <select>
-                                                                    <option value="0">Select Your Country</option>
-                                                                    <option value="1">Australia</option>
-                                                                    <option value="2">Afganistan</option>
-                                                                    <option value="3">Bangladesh</option>
-                                                                    <option value="4">Belgium</option>
-                                                                    <option value="5">Brazil</option>
-                                                                    <option value="6">Canada</option>
-                                                                    <option value="7">China</option>
-                                                                    <option value="8">Denmark</option>
-                                                                    <option value="9">Egypt</option>
-                                                                    <option value="10">India</option>
-                                                                    <option value="11">Iran</option>
-                                                                    <option value="12">Israel</option>
-                                                                    <option value="13">Mexico</option>
-                                                                    <option value="14">UAE</option>
-                                                                    <option value="15">UK</option>
-                                                                    <option value="16">USA</option>
-                                                                </select>
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text" placeholder="District*"
+                                                                        name="district">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="aa-checkout-single-bill">
+                                                                    <input type="text" placeholder="Postcode / ZIP*"
+                                                                        name="pincode">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Appartment, Suite etc.">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="City / Town*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="District*">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Postcode / ZIP*">
-                                                            </div>
-                                                        </div>
+                                                        <input type="hidden" name="shipping_details"
+                                                            value="add_shipping_details">
+                                                        <button class="aa-browse-btn">Submit</button>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <!-- Shipping Address -->
-                                        <div class="panel panel-default aa-checkout-billaddress">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion"
-                                                        href="#collapseFour">
-                                                        Shippping Address
-                                                    </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapseFour" class="panel-collapse collapse">
-                                                <div class="panel-body">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="First Name*">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Last Name*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Company name">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="email" placeholder="Email Address*">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="tel" placeholder="Phone*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <textarea cols="8" rows="3">Address*</textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <select>
-                                                                    <option value="0">Select Your Country</option>
-                                                                    <option value="1">Australia</option>
-                                                                    <option value="2">Afganistan</option>
-                                                                    <option value="3">Bangladesh</option>
-                                                                    <option value="4">Belgium</option>
-                                                                    <option value="5">Brazil</option>
-                                                                    <option value="6">Canada</option>
-                                                                    <option value="7">China</option>
-                                                                    <option value="8">Denmark</option>
-                                                                    <option value="9">Egypt</option>
-                                                                    <option value="10">India</option>
-                                                                    <option value="11">Iran</option>
-                                                                    <option value="12">Israel</option>
-                                                                    <option value="13">Mexico</option>
-                                                                    <option value="14">UAE</option>
-                                                                    <option value="15">UK</option>
-                                                                    <option value="16">USA</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Appartment, Suite etc.">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="City / Town*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="District*">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <input type="text" placeholder="Postcode / ZIP*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="aa-checkout-single-bill">
-                                                                <textarea cols="8" rows="3">Special Notes</textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+
+                                        </form>
                                     </div>
                                 </div>
                             </div>
