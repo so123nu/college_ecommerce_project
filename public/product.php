@@ -275,15 +275,12 @@ foreach($carts as $cart){
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="seller_register.php">Become A Seller</a></li>
                                     <?php endif; ?>
-                                    <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
                                     <?php if(isset($_SESSION['email'])) : ?>
                                     <li><a href="user_order.php">My Orders</a></li>
                                     <?php endif; ?>
-                                    <?php if(isset($_SESSION['name'])): ?>
-                                    <li><a href="" data-toggle="modal" data-target="#login-modal">Logout</a></li>
-                                    <?php endif; ?>
+
                                     <?php if(isset($_SESSION['email'])) : ?>
                                     <li>
                                         <form action="index.php" method="POST">
@@ -399,16 +396,21 @@ foreach($carts as $cart){
                         <!-- Left nav -->
                         <ul class="nav navbar-nav">
                             <li><a href="index.php">Home</a></li>
-                            <li><a href="#">Sports</a></li>
-                            <li><a href="#">Digital <span class="caret"></span></a>
+
+                            <li><a href="http://localhost/college_ecom/public/product.php?id=1">Sports</a></li>
+                            <li><a href="http://localhost/college_ecom/public/product.php?id=2">Digital <span
+                                        class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Camera</a></li>
-                                    <li><a href="#">Mobile</a></li>
-                                    <li><a href="#">Tablet</a></li>
-                                    <li><a href="#">Laptop</a></li>
-                                    <li><a href="#">Accesories</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Camera</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Mobile</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Tablet</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Laptop</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Accesories</a>
+                                    </li>
                                 </ul>
                             </li>
+
+
                             <li><a href="contact.php">Contact</a></li>
 
                         </ul>
@@ -629,24 +631,20 @@ foreach($carts as $cart){
                         <div class="aa-sidebar-widget">
                             <h3>Category</h3>
                             <ul class="aa-catg-nav">
-                                <li><a href="#">Men</a></li>
-                                <li><a href="">Women</a></li>
-                                <li><a href="">Kids</a></li>
-                                <li><a href="">Electornics</a></li>
+                                <li><a href="#">Home</a></li>
                                 <li><a href="">Sports</a></li>
+                                <li><a href="">Digital</a></li>
+                                <li><a href="">Electornics</a></li>
                             </ul>
                         </div>
                         <!-- single sidebar -->
                         <div class="aa-sidebar-widget">
                             <h3>Tags</h3>
                             <div class="tag-cloud">
-                                <a href="#">Fashion</a>
                                 <a href="#">Ecommerce</a>
                                 <a href="#">Shop</a>
-                                <a href="#">Hand Bag</a>
                                 <a href="#">Laptop</a>
                                 <a href="#">Head Phone</a>
-                                <a href="#">Pen Drive</a>
                             </div>
                         </div>
                         <!-- single sidebar -->
@@ -665,37 +663,9 @@ foreach($carts as $cart){
                             </div>
 
                         </div>
-                        <!-- single sidebar -->
+
                         <div class="aa-sidebar-widget">
-                            <h3>Shop By Color</h3>
-                            <div class="aa-color-tag">
-                                <a class="aa-color-green" href="#"></a>
-                                <a class="aa-color-yellow" href="#"></a>
-                                <a class="aa-color-pink" href="#"></a>
-                                <a class="aa-color-purple" href="#"></a>
-                                <a class="aa-color-blue" href="#"></a>
-                                <a class="aa-color-orange" href="#"></a>
-                                <a class="aa-color-gray" href="#"></a>
-                                <a class="aa-color-black" href="#"></a>
-                                <a class="aa-color-white" href="#"></a>
-                                <a class="aa-color-cyan" href="#"></a>
-                                <a class="aa-color-olive" href="#"></a>
-                                <a class="aa-color-orchid" href="#"></a>
-                            </div>
-                        </div>
-                        <!-- single sidebar -->
-                        <div class="aa-sidebar-widget">
-                            <h3>Shop By Type</h3>
-                            <!-- price range -->
-                            <div class="aa-sidebar-price-range">
-                                <form action="">
-                                    <!-- <div id="skipstep" class="noUi-target noUi-ltr noUi-horizontal noUi-background">
-                                    </div>
-                                    <span id="skip-value-lower" class="example-val">30.00</span>
-                                    <span id="skip-value-upper" class="example-val">100.00</span>
-                                    <button class="aa-filter-btn" type="submit">Filter</button> -->
-                                </form>
-                            </div>
+
                             <!-- single sidebar -->
 
                     </aside>

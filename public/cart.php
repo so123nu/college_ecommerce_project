@@ -230,7 +230,6 @@ if(empty($_SESSION['email'])){
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="seller_register.php">Become A Seller</a></li>
                                     <?php endif; ?>
-                                    <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
                                     <?php if(isset($_SESSION['email'])) : ?>
@@ -349,18 +348,21 @@ if(empty($_SESSION['email'])){
                     <div class="navbar-collapse collapse">
                         <!-- Left nav -->
                         <ul class="nav navbar-nav">
-                            <li><a href="index.html">Home</a></li>
+                            <li><a href="index.php">Home</a></li>
 
-                            <li><a href="#">Sports</a></li>
-                            <li><a href="#">Digital <span class="caret"></span></a>
+                            <li><a href="http://localhost/college_ecom/public/product.php?id=1">Sports</a></li>
+                            <li><a href="http://localhost/college_ecom/public/product.php?id=2">Digital <span
+                                        class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Camera</a></li>
-                                    <li><a href="#">Mobile</a></li>
-                                    <li><a href="#">Tablet</a></li>
-                                    <li><a href="#">Laptop</a></li>
-                                    <li><a href="#">Accesories</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Camera</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Mobile</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Tablet</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Laptop</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Accesories</a>
+                                    </li>
                                 </ul>
                             </li>
+
 
                             <li><a href="contact.php">Contact</a></li>
 

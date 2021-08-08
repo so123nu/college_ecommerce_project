@@ -193,7 +193,6 @@ $response = new Response;
                                     <?php if(!isset($_SESSION['email'])) : ?>
                                     <li><a href="seller_register.php">Become A Seller</a></li>
                                     <?php endif; ?>
-                                    <li class="hidden-xs"><a href="wishlist.php">Wishlist</a></li>
                                     <li class="hidden-xs"><a href="cart.php">My Cart</a></li>
                                     <li class="hidden-xs"><a href="checkout.php">Checkout</a></li>
                                     <?php if(isset($_SESSION['email'])) : ?>
@@ -316,14 +315,16 @@ $response = new Response;
                         <ul class="nav navbar-nav">
                             <li><a href="index.php">Home</a></li>
 
-                            <li><a href="#">Sports</a></li>
-                            <li><a href="#">Digital <span class="caret"></span></a>
+                            <li><a href="http://localhost/college_ecom/public/product.php?id=1">Sports</a></li>
+                            <li><a href="http://localhost/college_ecom/public/product.php?id=2">Digital <span
+                                        class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Camera</a></li>
-                                    <li><a href="#">Mobile</a></li>
-                                    <li><a href="#">Tablet</a></li>
-                                    <li><a href="#">Laptop</a></li>
-                                    <li><a href="#">Accesories</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Camera</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Mobile</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Tablet</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Laptop</a></li>
+                                    <li><a href="http://localhost/college_ecom/public/product.php?id=2">Accesories</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -885,12 +886,13 @@ $response = new Response;
                                                 </p>
                                                 <p><span class="fa fa-envelope"></span>dailyshop@gmail.com</p>
                                             </address>
-                                            <div class="aa-footer-social">
-                                                <a href="#"><span class="fa fa-facebook"></span></a>
+                                            <!-- <div class="aa-footer-social">
+                                                <a href="#"><i class="fa fa-facebook-official" aria-hidden="true"></i>
+                                                </a>
                                                 <a href="#"><span class="fa fa-twitter"></span></a>
                                                 <a href="#"><span class="fa fa-google-plus"></span></a>
                                                 <a href="#"><span class="fa fa-youtube"></span></a>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
