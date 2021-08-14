@@ -586,13 +586,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                                     </div>
                                     <h4>Payment Method</h4>
                                     <div class="aa-payment-method">
-                                        <label for="cashdelivery"><input type="radio" id="cashdelivery"
-                                                name="optionsRadios"> Cash on Delivery </label>
+                                        <!-- <label for="cashdelivery"><input type="radio" id="cashdelivery"
+                                                name="optionsRadios"> Cash on Delivery </label> -->
                                         <label for="paypal"><input type="radio" id="paypal" name="optionsRadios"
                                                 checked> E-Payment </label>
                                         <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_mc_vs_dc_ae.jpg"
                                             border="0" alt="PayPal Acceptance Mark">
-                                        <input type="submit" value="Place Order" class="aa-browse-btn" id="place_order">
+                                        <input type="submit" value="Pay & Place Order" class="aa-browse-btn"
+                                            id="place_order">
                                     </div>
                                 </div>
                             </div>
